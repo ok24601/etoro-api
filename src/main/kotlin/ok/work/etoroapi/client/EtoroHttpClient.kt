@@ -86,4 +86,15 @@ class EtoroHttpClient {
         return position
     }
 
+    fun closePosition(id: String) {
+        val req = prepareRequest("sapi/trade-demo/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",
+                authorizationContext.exchangeToken)
+                .DELETE()
+                .build()
+        val code = client.send(req, HttpResponse.BodyHandlers.ofString()).statusCode()
+        if (code != 200) {
+            throw RuntimeException("Failed close positionID $id")
+        }
+    }
+
 }

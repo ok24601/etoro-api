@@ -25,5 +25,10 @@ class PositionsController {
         return httpClient.openPosition(position)
     }
 
+    @DeleteMapping(value = ["/close"])
+    fun closePosition(id: String) {
+        httpClient.closePosition(id)
+    }
+
 }
 

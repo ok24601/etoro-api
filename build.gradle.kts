@@ -32,6 +32,11 @@ dependencies {
 
 	implementation( "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.+")
 
+	// Swagger
+	implementation("io.springfox:springfox-swagger2:2.9.2")
+	implementation("io.springfox:springfox-swagger-ui:2.9.2")
+	implementation("io.springfox:springfox-swagger-common:2.9.2")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}

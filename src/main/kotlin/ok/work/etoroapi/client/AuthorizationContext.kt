@@ -29,7 +29,7 @@ class AuthorizationContext {
         if (token != null) {
             exchangeToken = token
         } else {
-            auth(System.getenv("USERNAME"), System.getenv("PASSWORD"))
+            auth(System.getenv("LOGIN"), System.getenv("PASSWORD"))
             exchange()
         }
     }
