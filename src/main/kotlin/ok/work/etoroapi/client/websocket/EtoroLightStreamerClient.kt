@@ -25,7 +25,7 @@ class EtoroLightStreamerClient {
         client.connectionOptions.connectTimeout = "10000"
         client.connect()
 
-        val sub = Subscription("MERGE", (100000..100100).map { i -> "instrument:${i}" }.toList().toTypedArray(), arrayOf("IsInstrumentActive", "InstrumentID", "Ask", "Bid",
+        val sub = Subscription("MERGE", (100000..100001).map { i -> "instrument:${i}" }.toList().toTypedArray(), arrayOf("IsInstrumentActive", "InstrumentID", "Ask", "Bid",
                 "ConversionRateBid", "ConversionRateAsk", "AllowBuy", "AllowSell"))
 
         sub.requestedSnapshot = "no"
