@@ -1,12 +1,11 @@
 ### Etoro trading API
 
-###to start API server:
 
 ##### Build executable jar
 ````
 ./gradlew build
 ````
-##### Set your account credentials into Environment variables: USERNAME, PASSWORD
+##### Set your account credentials into Environment variables: LOGIN, PASSWORD
 ````
 export LOGIN=yourusername
 export PASSWORD=yourpassword
@@ -17,6 +16,8 @@ export PASSWORD=yourpassword
 ````
 
 ### Using API server
+
+In order to trade you have to add asset to watchlist first, then you can open or close positions with this asset.
 
 - API documentation http://localhost:8088/etoro-api/v2/api-docs
 - add assets to watchlist http://localhost:8088/etoro-api/watchlist/
