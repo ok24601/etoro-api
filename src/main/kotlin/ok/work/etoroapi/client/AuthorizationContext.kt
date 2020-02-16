@@ -2,11 +2,11 @@ package ok.work.etoroapi.client
 
 import org.json.JSONObject
 import org.springframework.stereotype.Component
+import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.time.LocalDateTime
 import java.util.*
 import javax.annotation.PostConstruct
 
@@ -16,15 +16,22 @@ class AuthorizationContext {
     lateinit var exchangeToken: String
     lateinit var accessToken: String
     lateinit var requestId: String
-    lateinit var expirationTime: LocalDateTime
 
-    val client = HttpClient.newHttpClient()
+    val client: HttpClient = HttpClient.newHttpClient()
 
     @PostConstruct
     fun setupAuthorizationContext() {
         requestId = UUID.randomUUID().toString().toLowerCase()
-        auth(System.getenv("USERNAME"), System.getenv("PASSWORD"))
-        exchange()
+
+        //only for dev
+        val token = System.getenv("TOKEN")
+
+        if (token != null) {
+            exchangeToken = token
+        } else {
+            auth(System.getenv("USERNAME"), System.getenv("PASSWORD"))
+            exchange()
+        }
     }
 
     private fun auth(username: String, pwd: String) {

@@ -1,12 +1,10 @@
 package ok.work.etoroapi.controller
 
 import ok.work.etoroapi.client.EtoroHttpClient
+import ok.work.etoroapi.client.EtoroPosition
 import ok.work.etoroapi.model.Position
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
@@ -17,8 +15,9 @@ class PositionsController {
     lateinit var httpClient: EtoroHttpClient
 
 
-    fun getPositions(): List<Position> {
-        return ArrayList()
+    @GetMapping
+    fun getPositions(): List<EtoroPosition> {
+        return httpClient.getPositions()
     }
 
     @PostMapping(value = ["/open"])
