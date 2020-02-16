@@ -3,14 +3,23 @@ package ok.work.etoroapi.client.websocket
 import com.lightstreamer.client.ItemUpdate
 import com.lightstreamer.client.Subscription
 import com.lightstreamer.client.SubscriptionListener
+import ok.work.etoroapi.watchlist.Watchlist
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
+@Component
 class EtoroClientListener : SubscriptionListener {
+
+    @Autowired
+    lateinit var watchlist: Watchlist
+
     override fun onListenEnd(subscription: Subscription) {
         println("onListenEnd")
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onItemUpdate(itemUpdate: ItemUpdate) {
+        watchlist.updatePrice(itemUpdate.itemName.replace("instrument:", ""), itemUpdate.getValue(3), itemUpdate.getValue(4))
         println("${itemUpdate.itemName} buy:${itemUpdate.getValue(3)} sell:${itemUpdate.getValue(4)}")
     }
 
