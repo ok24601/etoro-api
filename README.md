@@ -1,6 +1,10 @@
 ### Etoro trading API
 
 
+##### Requirments:
+- java 11 (JRE11)
+- internet connection
+
 ##### Build executable jar
 ````
 ./gradlew build

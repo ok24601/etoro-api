@@ -1,12 +1,13 @@
 package ok.work.etoroapi.client
 
+import ok.work.etoroapi.model.TradingMode
 import java.net.URI
 import java.net.http.HttpRequest
 
-fun prepareRequest(path: String, auth: String): HttpRequest.Builder {
+fun prepareRequest(path: String, auth: String, mode: TradingMode): HttpRequest.Builder {
     return HttpRequest.newBuilder().uri(URI("https://www.etoro.com/${path}"))
             .header("authority", "www.etoro.com")
-            .header("accounttype", "Demo")
+            .header("accounttype", mode.name)
             .header("x-sts-appdomain", "https://www.etoro.com")
             .header("content-type", "application/json;charset=UTF-8")
             .header("accept", "application/json, text/plain, */*")

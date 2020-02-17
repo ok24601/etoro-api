@@ -1,5 +1,6 @@
 package ok.work.etoroapi.client
 
+import ok.work.etoroapi.model.TradingMode
 import org.json.JSONObject
 import org.springframework.stereotype.Component
 import java.io.File
@@ -57,7 +58,7 @@ class AuthorizationContext {
     }
 
     private fun exchange() {
-        val req = prepareRequest("api/sts/v2/oauth/exchange?client_request_id=${requestId}", accessToken)
+        val req = prepareRequest("api/sts/v2/oauth/exchange?client_request_id=${requestId}", accessToken, TradingMode.DEMO)
                 .POST(HttpRequest.BodyPublishers.ofString("{\"RequestedScopes\":[]}"))
                 .build()
         val response = client.send(req, HttpResponse.BodyHandlers.ofString()).body()

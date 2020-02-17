@@ -1,1 +1,30 @@
-{"100000":{"id":"100000","name":"BTC","fullName":"Bitcoin","buy":null,"sell":null},"100001":{"id":"100001","name":"ETHEREUM","fullName":"Ethereum","buy":null,"sell":null},"18":{"id":"18","name":"GOLD","fullName":"Gold","buy":null,"sell":null}}
+{
+  "18": {
+    "id": "18",
+    "name": "GOLD",
+    "fullName": "Gold",
+    "buy": 1582.38,
+    "sell": 1581.93
+  },
+  "100000": {
+    "id": "100000",
+    "name": "BTC",
+    "fullName": "Bitcoin",
+    "buy": 9757.99,
+    "sell": 9685.21
+  },
+  "100001": {
+    "id": "100001",
+    "name": "ETHEREUM",
+    "fullName": "Ethereum",
+    "buy": 264.1742,
+    "sell": 259.2362
+  },
+  "100003": {
+    "id": "100003",
+    "name": "XRP",
+    "fullName": "Ripple",
+    "buy": null,
+    "sell": null
+  }
+}

@@ -49,9 +49,9 @@ class Watchlist {
                 .configure(MapperFeature.USE_STD_BEAN_NAMING, true)
         val json = File(SAVED_LIST_PATH)
         if (json.exists()) {
-            mapper.readValue<MutableMap<String, Asset>>(json).forEach { p -> addAssetToWatchlistById(p.key) }
+            mapper.readValue<MutableMap<String, Asset>>(json).forEach { p -> watchlist[p.key] = p.value}
+            lightStreamerClient.subscribeByIds( watchlist.toList().map { pair -> pair.first })
         }
-
         println(assetsMapIDs)
     }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import ok.work.etoroapi.model.Position
 import ok.work.etoroapi.model.PositionType
+import ok.work.etoroapi.model.TradingMode
 import ok.work.etoroapi.watchlist.EtoroAsset
 import ok.work.etoroapi.watchlist.Watchlist
 import org.json.JSONObject
@@ -33,20 +34,10 @@ class EtoroHttpClient {
 
     private val client = HttpClient.newHttpClient()
 
-    fun getPortfolio() {
+    fun getPositions(mode: TradingMode): List<EtoroPosition> {
         val req = prepareRequest("api/logininfo/v1.1/logindata?" +
                 "client_request_id=${authorizationContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-                authorizationContext.exchangeToken)
-                .GET()
-                .build()
-        val response = client.send(req, HttpResponse.BodyHandlers.ofString()).body()
-        println(JSONObject(response).getString("ClientPortfolio"))
-    }
-
-    fun getPositions(): List<EtoroPosition> {
-        val req = prepareRequest("api/logininfo/v1.1/logindata?" +
-                "client_request_id=${authorizationContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-                authorizationContext.exchangeToken)
+                authorizationContext.exchangeToken, mode)
                 .GET()
                 .build()
         val response = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body())
@@ -71,12 +62,12 @@ class EtoroHttpClient {
         return mapper.readValue(response)
     }
 
-    fun openPosition(position: Position): Position {
+    fun openPosition(position: Position, mode: TradingMode): Position {
         val type = position.type.equals(PositionType.BUY)
         val price = watchlist.getPrice(position.id, position.type)
         val positionRequestBody = EtoroPosition(null ,position.id, type, position.leverage, 0.01, 0, false, 50,
                 0.01, false, false, position.amount, ViewContext(price), null)
-        val req = prepareRequest("sapi/trade-demo/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken)
+        val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode)
                 .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
                 .build()
         val code = client.send(req, HttpResponse.BodyHandlers.ofString()).statusCode()
@@ -86,9 +77,9 @@ class EtoroHttpClient {
         return position
     }
 
-    fun closePosition(id: String) {
-        val req = prepareRequest("sapi/trade-demo/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",
-                authorizationContext.exchangeToken)
+    fun closePosition(id: String, mode: TradingMode) {
+        val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",
+                authorizationContext.exchangeToken, mode)
                 .DELETE()
                 .build()
         val code = client.send(req, HttpResponse.BodyHandlers.ofString()).statusCode()

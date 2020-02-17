@@ -33,4 +33,13 @@ class EtoroLightStreamerClient {
         client.subscribe(sub)
     }
 
+    fun subscribeByIds(idList: List<String>) {
+        val idArray = idList.map { id -> "instrument:$id" }.toTypedArray()
+        val sub = Subscription("MERGE", idArray, arrayOf("IsInstrumentActive", "InstrumentID", "Ask", "Bid",
+                "ConversionRateBid", "ConversionRateAsk", "AllowBuy", "AllowSell"))
+        sub.requestedSnapshot = "yes"
+        sub.addListener(listener)
+        client.subscribe(sub)
+    }
+
 }
