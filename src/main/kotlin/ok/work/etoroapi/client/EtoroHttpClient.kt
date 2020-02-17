@@ -34,6 +34,7 @@ class EtoroHttpClient {
 
     private val client = HttpClient.newHttpClient()
 
+
     fun getPositions(mode: TradingMode): List<EtoroPosition> {
         val req = prepareRequest("api/logininfo/v1.1/logindata?" +
                 "client_request_id=${authorizationContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",

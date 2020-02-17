@@ -3,7 +3,6 @@ package ok.work.etoroapi.client
 import ok.work.etoroapi.model.TradingMode
 import org.json.JSONObject
 import org.springframework.stereotype.Component
-import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -17,6 +16,9 @@ class AuthorizationContext {
     lateinit var exchangeToken: String
     lateinit var accessToken: String
     lateinit var requestId: String
+    lateinit var demogcid: String
+    lateinit var realgcid: String
+    private lateinit var userdata: JSONObject
 
     val client: HttpClient = HttpClient.newHttpClient()
 
@@ -33,6 +35,7 @@ class AuthorizationContext {
             auth(System.getenv("LOGIN"), System.getenv("PASSWORD"))
             exchange()
         }
+        getAccountData(TradingMode.REAL)
     }
 
     private fun auth(username: String, pwd: String) {
@@ -63,5 +66,21 @@ class AuthorizationContext {
                 .build()
         val response = client.send(req, HttpResponse.BodyHandlers.ofString()).body()
         exchangeToken = JSONObject(response).getString("accessToken").toString()
+    }
+
+    fun getAccountData(mode: TradingMode) {
+        val req = prepareRequest("api/logininfo/v1.1/logindata?" +
+                "client_request_id=${requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
+                exchangeToken, mode)
+                .GET()
+                .build()
+        val response = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body())
+                .getJSONObject("AggregatedResult")
+                .getJSONObject("ApiResponses")
+        userdata = response.getJSONObject("CurrentUserData").getJSONObject("Content").getJSONArray("users").getJSONObject(0)
+        realgcid = userdata.getInt("realCID").toString()
+        demogcid = userdata.getInt("demoCID").toString()
+
+
     }
 }
