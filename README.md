@@ -2,7 +2,7 @@
 
 
 ##### Requirments:
-- java 11 (JRE11)
+- java 11 (JDK11)
 - internet connection
 
 ##### Build executable jar

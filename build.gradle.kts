@@ -5,10 +5,11 @@ plugins {
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	kotlin("jvm") version "1.3.61"
 	kotlin("plugin.spring") version "1.3.61"
+	`maven-publish`
 }
 
 group = "ok.work"
-version = "0.0.1-SNAPSHOT"
+version = "0.1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -30,7 +31,7 @@ dependencies {
 
 	implementation("com.lightstreamer:ls-javase-client:3.1.1")
 
-	implementation( "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.+")
+	implementation( "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2")
 
 	// Swagger
 	implementation("io.springfox:springfox-swagger2:2.9.2")
@@ -47,5 +48,17 @@ tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
 		jvmTarget = "11"
+	}
+}
+
+publishing {
+	publications {
+		create<MavenPublication>("maven") {
+			groupId = group.toString()
+			artifactId = "etoro-api"
+			version = version.toString()
+
+			from(components["kotlin"])
+		}
 	}
 }

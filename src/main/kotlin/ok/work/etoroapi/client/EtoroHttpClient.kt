@@ -1,11 +1,14 @@
 package ok.work.etoroapi.client
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import ok.work.etoroapi.model.Position
 import ok.work.etoroapi.model.PositionType
 import ok.work.etoroapi.model.TradingMode
+import ok.work.etoroapi.transactions.Transaction
+import ok.work.etoroapi.transactions.TransactionPool
 import ok.work.etoroapi.watchlist.EtoroAsset
 import ok.work.etoroapi.watchlist.Watchlist
 import org.json.JSONObject
@@ -18,8 +21,9 @@ import java.net.http.HttpResponse
 
 data class ViewContext(val ClientViewRate: Double)
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class EtoroPosition(val PositionID: String?, val InstrumentID: String, val IsBuy: Boolean, val Leverage: Int,
-                         val StopLossRate: Double, val TakeProfitRate: Int, val IsTslEnabled: Boolean,
+                         val StopLossRate: Double, val TakeProfitRate: Double, val IsTslEnabled: Boolean,
                          val View_MaxPositionUnits: Int, val View_Units: Double, val View_openByUnits: Boolean?,
                          val IsDiscounted: Boolean, val Amount: Int, val ViewRateContext: ViewContext?, val OpenDateTime: String?)
 
@@ -31,6 +35,9 @@ class EtoroHttpClient {
 
     @Autowired
     lateinit var watchlist: Watchlist
+
+    @Autowired
+    lateinit var transactionPool: TransactionPool
 
     private val client = HttpClient.newHttpClient()
 
@@ -63,19 +70,17 @@ class EtoroHttpClient {
         return mapper.readValue(response)
     }
 
-    fun openPosition(position: Position, mode: TradingMode): Position {
+    fun openPosition(position: Position, mode: TradingMode): Transaction {
         val type = position.type.equals(PositionType.BUY)
-        val price = watchlist.getPrice(position.id, position.type)
-        val positionRequestBody = EtoroPosition(null ,position.id, type, position.leverage, 0.01, 0, false, 50,
+        val price = watchlist.getPrice(position.instrumentId, position.type)
+        val positionRequestBody = EtoroPosition(null ,position.instrumentId, type, position.leverage, position.stopLoss, position.takeProfit, false, 50,
                 0.01, false, false, position.amount, ViewContext(price), null)
         val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode)
                 .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
                 .build()
-        val code = client.send(req, HttpResponse.BodyHandlers.ofString()).statusCode()
-        if (code != 200) {
-            throw RuntimeException("Failed open position $position")
-        }
-        return position
+        val transactionId = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getString("Token")
+
+        return transactionPool.getFromPool(transactionId) ?: Transaction(transactionId, null, null)
     }
 
     fun closePosition(id: String, mode: TradingMode) {

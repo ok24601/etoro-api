@@ -3,8 +3,8 @@ package ok.work.etoroapi.controller
 import ok.work.etoroapi.client.EtoroHttpClient
 import ok.work.etoroapi.client.EtoroPosition
 import ok.work.etoroapi.model.Position
-import ok.work.etoroapi.model.TradingMode
 import ok.work.etoroapi.model.ofString
+import ok.work.etoroapi.transactions.Transaction
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
@@ -23,7 +23,7 @@ class PositionsController {
     }
 
     @PostMapping(value = ["/open"])
-    fun openPosition(@RequestBody position: Position, @RequestHeader(defaultValue = "Demo") mode: String): Position {
+    fun openPosition(@RequestBody position: Position, @RequestHeader(defaultValue = "Demo") mode: String): Transaction {
         return httpClient.openPosition(position, ofString(mode))
     }
 
