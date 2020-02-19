@@ -3,6 +3,7 @@ package ok.work.etoroapi.client.websocket
 import com.lightstreamer.client.LightstreamerClient
 import com.lightstreamer.client.Subscription
 import ok.work.etoroapi.client.AuthorizationContext
+import ok.work.etoroapi.client.credentials.CredentialsService
 import ok.work.etoroapi.client.websocket.listeners.EtoroPositionListener
 import ok.work.etoroapi.client.websocket.listeners.EtoroPriceListener
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,17 +29,20 @@ class EtoroLightStreamerClient {
     @Autowired
     lateinit var authorizationContext: AuthorizationContext
 
+    @Autowired
+    private lateinit var credentialsService: CredentialsService
+
     @PostConstruct
     fun init() {
         client = LightstreamerClient("https://push-demo-lightstreamer.cloud.etoro.com", "PROXY_PUSH")
         client.connectionDetails.user = authorizationContext.exchangeToken
-        client.connectionDetails.setPassword("""{"UserAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36","ApplicationVersion":"213.0.2","ApplicationName":"ReToro","AccountType":"Demo","ApplicationIdentifier":"ReToro"}""")
+        client.connectionDetails.setPassword(credentialsService.getCredentials().lsPassword)
         client.connectionOptions.connectTimeout = "10000"
         client.connect()
 
         realClient = LightstreamerClient("https://push-lightstreamer.cloud.etoro.com", "PROXY_PUSH")
         realClient.connectionDetails.user = authorizationContext.exchangeToken
-        realClient.connectionDetails.setPassword("""{"UserAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36","ApplicationVersion":"213.0.2","ApplicationName":"ReToro","AccountType":"Real","ApplicationIdentifier":"ReToro"}""")
+        realClient.connectionDetails.setPassword(credentialsService.getCredentials().lsPassword)
         realClient.connectionOptions.connectTimeout = "10000"
         realClient.connect()
 

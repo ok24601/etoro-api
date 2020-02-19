@@ -8,11 +8,9 @@ enum class TradingMode(type: String) {
 }
 
 fun ofString(name: String): TradingMode {
-    if (name.toLowerCase().equals("demo")) {
-        return TradingMode.DEMO
-    } else if (name.toLowerCase().equals("real")) {
-        return TradingMode.REAL
-    } else {
-        throw RuntimeException("Invalid trading mode $name")
+    return when {
+        name.toLowerCase().equals("demo") -> TradingMode.DEMO
+        name.toLowerCase().equals("real") -> TradingMode.REAL
+        else -> throw RuntimeException("Invalid trading mode $name")
     }
 }
