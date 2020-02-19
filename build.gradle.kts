@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ok.work"
-version = "0.1"
+version = "0.1.1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -86,6 +86,9 @@ task("writeNewPom") {
                             "plugin" {
                                 setProperty("groupId", "org.springframework.boot")
                                 setProperty("artifactId", "spring-boot-maven-plugin")
+                                "configuration" {
+                                    setProperty("classifier", "exec")
+                                }
                             }
                             "plugin" {
                                 setProperty("groupId", "org.jetbrains.kotlin")
