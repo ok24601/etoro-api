@@ -80,7 +80,7 @@ class EtoroHttpClient {
                 .build()
         val transactionId = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getString("Token")
 
-        return transactionPool.getFromPool(transactionId) ?: Transaction(transactionId, null, null)
+        return transactionPool.getFromPool(transactionId) ?: Transaction(transactionId, null, null, null, null)
     }
 
     fun closePosition(id: String, mode: TradingMode) {

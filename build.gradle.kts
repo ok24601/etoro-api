@@ -5,7 +5,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	kotlin("jvm") version "1.3.61"
 	kotlin("plugin.spring") version "1.3.61"
-	`maven-publish`
+	maven
 }
 
 group = "ok.work"
@@ -21,24 +21,24 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
-	implementation("org.springframework.boot:spring-boot-starter-web")
+	compile("org.springframework.boot:spring-boot-starter")
+	compile("org.springframework.boot:spring-boot-starter-web")
 
-	implementation ("org.json:json:20180813")
+	compile ("org.json:json:20180813")
 
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	compile("org.jetbrains.kotlin:kotlin-reflect")
+	compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-	implementation("com.lightstreamer:ls-javase-client:3.1.1")
+	compile("com.lightstreamer:ls-javase-client:3.1.1")
 
-	implementation( "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2")
+	compile( "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2")
 
 	// Swagger
-	implementation("io.springfox:springfox-swagger2:2.9.2")
-	implementation("io.springfox:springfox-swagger-ui:2.9.2")
-	implementation("io.springfox:springfox-swagger-common:2.9.2")
+	compile("io.springfox:springfox-swagger2:2.9.2")
+	compile("io.springfox:springfox-swagger-ui:2.9.2")
+	compile("io.springfox:springfox-swagger-common:2.9.2")
 
-	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+	testCompile("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
 }
@@ -51,14 +51,67 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
-publishing {
-	publications {
-		create<MavenPublication>("maven") {
-			groupId = group.toString()
-			artifactId = "etoro-api"
-			version = version.toString()
 
-			from(components["kotlin"])
-		}
+task("writeNewPom") {
+
+	doLast {
+
+
+		maven.pom {
+
+			withGroovyBuilder {
+				"project" {
+
+					"properties" {
+						setProperty("java.version", "11")
+						setProperty("kotlin.version", "1.3.61")
+					}
+					"parent" {
+						setProperty("groupId", "org.springframework.boot")
+						setProperty("artifactId", "spring-boot-starter-parent")
+						setProperty("version", "2.2.4.RELEASE")
+					}
+					"repositories" {
+						"repository" {
+							setProperty("id", "lightstreamer")
+							setProperty("url", "https://www.lightstreamer.com/repo/maven")
+						}
+					}
+
+					"build" {
+						setProperty("sourceDirectory", "\${project.basedir}/src/main/kotlin")
+						setProperty("testSourceDirectory", "\${project.basedir}/src/test/kotlin")
+						"plugins" {
+							"plugin" {
+								setProperty("groupId", "org.springframework.boot")
+								setProperty("artifactId", "spring-boot-maven-plugin")
+							}
+							"plugin" {
+								setProperty("groupId", "org.jetbrains.kotlin")
+								setProperty("artifactId", "kotlin-maven-plugin")
+								"configuration" {
+									"args" {
+										setProperty("arg", "-Xjsr305=strict")
+									}
+									"compilerPlugins" {
+										setProperty("plugin", "spring")
+									}
+								}
+								"dependencies" {
+									"dependency" {
+										setProperty("groupId", "org.jetbrains.kotlin")
+										setProperty("artifactId", "kotlin-maven-allopen")
+										setProperty("version", "\${kotlin.version}")
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+
+		}.writeTo("${project.projectDir}/pom.xml")
+
 	}
 }

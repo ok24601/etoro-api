@@ -3,13 +3,18 @@ package ok.work.etoroapi.transactions
 import ok.work.etoroapi.client.EtoroPosition
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.lang.RuntimeException
 import java.time.LocalDateTime
 import java.util.*
 
 
 data class EtoroTransactionResponse(val Id: String, val Durable: Boolean?, val Type: String?, val Content: String?, val Aggregated: Boolean?)
 
-class Transaction(val RequestToken: String, val Position: EtoroPosition?, var date: LocalDateTime?)
+data class Transaction(val RequestToken: String, val Position: EtoroPosition?, val ErrorMessageCode: Int?, val NotificationParams: Map<String, String>?, var date: LocalDateTime?)
+
+class TransactionError(val code: Int, val details: Map<String, String>?): RuntimeException("Code: $code, details: $details") {
+
+}
 
 @Component
 class TransactionPool {
@@ -22,10 +27,14 @@ class TransactionPool {
 
     fun getFromPool(id: String): Transaction? {
         //todo poling
-        val maxTimeout = 10000
+        val maxTimeout = 4000
         for (i in 200 until maxTimeout step 50) {
             Thread.sleep(200)
-            if (transactionsPool[id] != null) {
+            val transaction = transactionsPool[id]
+            if (transaction != null) {
+                if (transaction.ErrorMessageCode != 0) {
+                    throw TransactionError(transaction.ErrorMessageCode ?: 0, transaction.NotificationParams)
+                }
                 break
             }
         }
