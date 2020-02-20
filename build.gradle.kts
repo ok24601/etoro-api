@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ok.work"
-version = "0.1.1"
+version = "0.1.2"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -37,6 +37,9 @@ dependencies {
     compile("io.springfox:springfox-swagger2:2.9.2")
     compile("io.springfox:springfox-swagger-ui:2.9.2")
     compile("io.springfox:springfox-swagger-common:2.9.2")
+
+    compile("org.seleniumhq.selenium:selenium-java:3.0.1")
+    compile("com.github.detro.ghostdriver:phantomjsdriver:1.0.1")
 
     testCompile("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")

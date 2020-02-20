@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
-val subscriptionFields = arrayOf( "InstrumentID", "Ask", "Bid", "LastExecution",
-        "ConversionRateBid", "ConversionRateAsk", "AllowBuy", "AllowSell", "IsMarketOpen", "OfficialClosingPrice", "PriceRateID", "UnitMarginAsk", "UnitMarginBid", "MaxPositionUnits", "IsInstrumentActive")
+val subscriptionFields = arrayOf( "InstrumentID", "Ask", "Bid", "IsMarketOpen",
+        "ConversionRateBid", "ConversionRateAsk", "AllowBuy", "AllowSell", "LastExecution", "OfficialClosingPrice", "PriceRateID", "UnitMarginAsk", "UnitMarginBid", "MaxPositionUnits", "IsInstrumentActive")
 
 @Component
 class EtoroLightStreamerClient {

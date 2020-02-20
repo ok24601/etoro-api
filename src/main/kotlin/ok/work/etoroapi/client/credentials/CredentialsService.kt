@@ -1,14 +1,49 @@
 package ok.work.etoroapi.client.credentials
 
+import org.openqa.selenium.phantomjs.PhantomJSDriver
+import org.openqa.selenium.phantomjs.PhantomJSDriverService
+import org.openqa.selenium.remote.DesiredCapabilities
 import org.springframework.stereotype.Component
+import javax.annotation.PostConstruct
 
-data class Credentials(val tsim2: String, val lsPassword: String)
+
+data class Credentials(val tmis2: String, val lsPassword: String)
 
 @Component
 class CredentialsService {
 
+    private lateinit var tmis2: String
+
+    @PostConstruct
+    fun init() {
+
+        var pathToDriver: String
+
+        if (System.getProperty("os.name").startsWith("Mac")) {
+            pathToDriver = "drivers/mac/phantomjs"
+        } else if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            pathToDriver = "drivers/windows/phantomjs.exe"
+        } else {
+            pathToDriver = "drivers/ubuntu/phantomjs"
+        }
+
+        val caps = DesiredCapabilities()
+        caps.isJavascriptEnabled = true // not really needed: JS enabled by default
+        caps.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, pathToDriver)
+
+        val driver = PhantomJSDriver(caps)
+
+        driver.get("https://www.etoro.com/")
+        Thread.sleep(3000)
+        val cookies = driver.manage().cookies
+        tmis2 = cookies.filter { c -> c.name.equals("TMIS2") }.first().value
+
+        driver.close()
+
+    }
+
     fun getCredentials(): Credentials {
-        return Credentials("9a74f2a902374865a44dcd9d44dac7511925a5e52fb7a36e93a52e65592814c96e58c9cfa0445c77a0ec769470f5fccd92c73d2cab1cb675113f3a76b5e69dd4fdb70ba01ff4de55c72b359a5986ceb04dd73b66c9571b3b24c077f77c322f3a106df990ff2c8492691a971924df35f8fe9b6f63afcf1283097e2177581fdb9d",
+        return Credentials(tmis2,
                 """{"UserAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36","ApplicationVersion":"213.0.2","ApplicationName":"ReToro","AccountType":"Demo","ApplicationIdentifier":"ReToro"}""")
     }
 }

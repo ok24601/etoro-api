@@ -82,15 +82,19 @@ class EtoroHttpClient {
         val type = position.type.equals(PositionType.BUY)
         val price = watchlist.getPrice(position.instrumentId, position.type)
 
-        val positionRequestBody = EtoroPosition(null, position.instrumentId, type, position.leverage, position.stopLoss, position.takeProfit, false, 50,
-                0.01, false, false, position.amount, ViewContext(price), null)
-        val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode, credentialsService.getCredentials())
-                .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
-                .build()
+        if (watchlist.isMarketOpen(position.instrumentId)) {
+            val positionRequestBody = EtoroPosition(null, position.instrumentId, type, position.leverage, position.stopLoss, position.takeProfit, false, 50,
+                    0.01, false, false, position.amount, ViewContext(price), null)
 
-        val transactionId = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getString("Token")
+            val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode, credentialsService.getCredentials())
+                    .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
+                    .build()
 
-        return transactionPool.getFromPool(transactionId) ?: Transaction(transactionId, null, null, null, null)
+            val transactionId = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getString("Token")
+            return transactionPool.getFromPool(transactionId) ?: Transaction(transactionId, null, null, null, null)
+        }
+        throw RuntimeException("Market ${position.instrumentId} is closed.")
+
     }
 
     fun closePosition(id: String, mode: TradingMode) {

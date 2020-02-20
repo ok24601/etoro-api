@@ -19,8 +19,7 @@ data class EtoroAsset(val InstrumentID: String, val SymbolFull: String, val Inst
     }
 }
 
-data class Asset(val id: String, val name: String, val fullName: String, var buy: Double?, var sell: Double?)
-
+data class Asset(val id: String, val name: String, val fullName: String, var buy: Double?, var sell: Double?, var marketOpen: Boolean?)
 
 @Component
 class Watchlist {
@@ -62,7 +61,7 @@ class Watchlist {
         val asset = assetsMapIDs[id]
         if (asset != null) {
             lightStreamerClient.subscribeById(asset.InstrumentID)
-            watchlist[id] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null)
+            watchlist[id] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null, null)
             saveToFile()
             return watchlist
         } else {
@@ -74,7 +73,7 @@ class Watchlist {
         val asset = assetsMapNames[name.toLowerCase()]
         if (asset != null) {
             lightStreamerClient.subscribeById(asset.InstrumentID)
-            watchlist[asset.InstrumentID] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null)
+            watchlist[asset.InstrumentID] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null, null)
             saveToFile()
             return watchlist
         } else {
@@ -114,5 +113,13 @@ class Watchlist {
             }
         }
         throw RuntimeException("Asset with id $id was not found.")
+    }
+
+    fun updateMarketStatus(id: String, value: Boolean) {
+        watchlist[id]?.marketOpen = value
+    }
+
+    fun isMarketOpen(instrumentId: String): Boolean {
+        return watchlist[instrumentId]?.marketOpen ?: false
     }
 }

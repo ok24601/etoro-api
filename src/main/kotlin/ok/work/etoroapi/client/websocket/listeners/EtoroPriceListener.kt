@@ -19,7 +19,11 @@ class EtoroPriceListener : EtoroListener() {
     }
 
     override fun onItemUpdate(itemUpdate: ItemUpdate) {
-        watchlist.updatePrice(itemUpdate.itemName.replace("instrument:", ""), itemUpdate.getValue(2), itemUpdate.getValue(3))
+        val id = itemUpdate.itemName.replace("instrument:", "")
+
+        watchlist.updatePrice(id, itemUpdate.getValue(2), itemUpdate.getValue(3))
+        watchlist.updateMarketStatus(id, itemUpdate.getValue(4)!!.toBoolean())
+
         val log = StringBuilder()
         for (i in 1..subscriptionFields.size) {
             log.append("${itemUpdate.getValue(i)} | ")
