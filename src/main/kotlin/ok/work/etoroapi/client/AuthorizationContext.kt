@@ -1,6 +1,6 @@
 package ok.work.etoroapi.client
 
-import ok.work.etoroapi.client.credentials.CredentialsService
+import ok.work.etoroapi.client.cookies.EtoroMetadataService
 import ok.work.etoroapi.model.TradingMode
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,7 +25,7 @@ class AuthorizationContext {
     private val client: HttpClient = HttpClient.newHttpClient()
 
     @Autowired
-    private lateinit var credentialsService: CredentialsService
+    private lateinit var credentialsService: EtoroMetadataService
 
     @PostConstruct
     fun setupAuthorizationContext() {
@@ -57,7 +57,8 @@ class AuthorizationContext {
                 .header("sec-fetch-site", "same-origin")
                 .header("sec-fetch-mode", "cors")
                 .header("referer", "https://www.etoro.com/login")
-                .header("cookie", "etoroHPRedirect=1; _ga=GA1.2.1096383890.1543357062; visid_incap_172517=ZNWYjpoOTt6IOfHx3HN5VxPG/VsAAAAAQUIPAAAAAACPZ88tOSyD62NooqBbZ/hN; visid_incap_773285=pfQdz3B9TZuve/PhmXgPnF3G/VsAAAAAQUIPAAAAAAC7uOLsspgsQRNnV9pm9LiA; fbm_166209726726710=base_domain=.etoro.com; liveagent_oref=; liveagent_ptid=b60ed7d3-3047-4752-86d1-14ba900fd3c4; _DCMN_id.90.13db=2a8b42dd8726053f.1543357972.4.1543872510.1543768287.; TMIS2=${credentialsService.getCredentials().tmis2}; _gat=1;")
+                .header("cookie", credentialsService.getMetadata().cookies)
+               // .header("cookie", "etoroHPRedirect=1; _ga=GA1.2.1096383890.1543357062; visid_incap_172517=ZNWYjpoOTt6IOfHx3HN5VxPG/VsAAAAAQUIPAAAAAACPZ88tOSyD62NooqBbZ/hN; visid_incap_773285=pfQdz3B9TZuve/PhmXgPnF3G/VsAAAAAQUIPAAAAAAC7uOLsspgsQRNnV9pm9LiA; fbm_166209726726710=base_domain=.etoro.com; liveagent_oref=; liveagent_ptid=b60ed7d3-3047-4752-86d1-14ba900fd3c4; _DCMN_id.90.13db=2a8b42dd8726053f.1543357972.4.1543872510.1543768287.; TMIS2=${credentialsService.getCredentials().tmis2}; _gat=1;")
                 .POST(HttpRequest.BodyPublishers.ofString("{\"Password\":\"${pwd}\",\"UserLoginIdentifier\":\"${username}\",\"Username\":\"${username}\",\"rememberMe\":true,\"RequestedScopes\":[]}"))
                 .build()
         val response = client.send(req, HttpResponse.BodyHandlers.ofString()).body()
@@ -66,7 +67,7 @@ class AuthorizationContext {
     }
 
     private fun exchange() {
-        val req = prepareRequest("api/sts/v2/oauth/exchange?client_request_id=${requestId}", accessToken, TradingMode.DEMO, credentialsService.getCredentials())
+        val req = prepareRequest("api/sts/v2/oauth/exchange?client_request_id=${requestId}", accessToken, TradingMode.DEMO, credentialsService.getMetadata())
                 .POST(HttpRequest.BodyPublishers.ofString("{\"RequestedScopes\":[]}"))
                 .build()
         val response = client.send(req, HttpResponse.BodyHandlers.ofString()).body()
@@ -76,7 +77,7 @@ class AuthorizationContext {
     fun getAccountData(mode: TradingMode) {
         val req = prepareRequest("api/logininfo/v1.1/logindata?" +
                 "client_request_id=${requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-                exchangeToken, mode, credentialsService.getCredentials())
+                exchangeToken, mode, credentialsService.getMetadata())
                 .GET()
                 .build()
         val response = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body())

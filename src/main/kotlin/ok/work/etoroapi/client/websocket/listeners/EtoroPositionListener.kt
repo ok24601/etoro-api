@@ -21,7 +21,9 @@ class EtoroPositionListener : EtoroListener() {
 
     val mapper: ObjectMapper = jacksonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false)
-            .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false).configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false).configure(DeserializationFeature.EAGER_DESERIALIZER_FETCH, true)
+            .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
+            .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
+            .configure(DeserializationFeature.EAGER_DESERIALIZER_FETCH, true)
 
 
     override fun onItemUpdate(itemUpdate: ItemUpdate) {
@@ -38,7 +40,5 @@ class EtoroPositionListener : EtoroListener() {
             val position: EtoroPosition = mapper.readValue(transactionJson.getJSONObject("Position").toString())
             transactionPool.addToPool(Transaction(requestToken, position, 0, null, LocalDateTime.now()))
         }
-
-
     }
 }

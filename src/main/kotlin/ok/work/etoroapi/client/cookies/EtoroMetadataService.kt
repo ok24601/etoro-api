@@ -1,4 +1,4 @@
-package ok.work.etoroapi.client.credentials
+package ok.work.etoroapi.client.cookies
 
 import org.openqa.selenium.phantomjs.PhantomJSDriver
 import org.openqa.selenium.phantomjs.PhantomJSDriverService
@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 
-data class Credentials(val tmis2: String, val lsPassword: String)
+data class EtoroMetadata(val cookies: String, val lsPassword: String)
 
 @Component
-class CredentialsService {
+class EtoroMetadataService {
 
-    private lateinit var tmis2: String
+    private lateinit var cookies: String
 
     @PostConstruct
     fun init() {
@@ -31,19 +31,22 @@ class CredentialsService {
         caps.isJavascriptEnabled = true // not really needed: JS enabled by default
         caps.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, pathToDriver)
 
+
         val driver = PhantomJSDriver(caps)
 
         driver.get("https://www.etoro.com/")
         Thread.sleep(3000)
-        val cookies = driver.manage().cookies
-        tmis2 = cookies.filter { c -> c.name.equals("TMIS2") }.first().value
+
+        val cookiesSet = driver.manage().cookies
+        cookies = cookiesSet.toList().map { cookie -> "${cookie.name}=${cookie.value}" }.joinToString("; ")
+        println("cookies: $cookies")
 
         driver.close()
 
     }
 
-    fun getCredentials(): Credentials {
-        return Credentials(tmis2,
+    fun getMetadata(): EtoroMetadata {
+        return EtoroMetadata(cookies,
                 """{"UserAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36","ApplicationVersion":"213.0.2","ApplicationName":"ReToro","AccountType":"Demo","ApplicationIdentifier":"ReToro"}""")
     }
 }

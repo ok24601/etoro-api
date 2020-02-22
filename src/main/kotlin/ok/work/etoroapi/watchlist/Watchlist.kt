@@ -122,4 +122,8 @@ class Watchlist {
     fun isMarketOpen(instrumentId: String): Boolean {
         return watchlist[instrumentId]?.marketOpen ?: false
     }
+
+    fun getInstrumentIdByName(name: String): String {
+        return assetsMapNames[name]?.InstrumentID ?: throw RuntimeException("No InstrumentID was found for the name: $name")
+    }
 }

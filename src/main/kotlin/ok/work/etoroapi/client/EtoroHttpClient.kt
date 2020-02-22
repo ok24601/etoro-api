@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import ok.work.etoroapi.client.credentials.CredentialsService
+import ok.work.etoroapi.client.cookies.EtoroMetadataService
 import ok.work.etoroapi.model.Position
 import ok.work.etoroapi.model.PositionType
 import ok.work.etoroapi.model.TradingMode
@@ -41,7 +41,7 @@ class EtoroHttpClient {
     private lateinit var transactionPool: TransactionPool
 
     @Autowired
-    private lateinit var credentialsService: CredentialsService
+    private lateinit var metadataService: EtoroMetadataService
 
     private val client = HttpClient.newHttpClient()
 
@@ -49,7 +49,7 @@ class EtoroHttpClient {
     fun getPositions(mode: TradingMode): List<EtoroPosition> {
         val req = prepareRequest("api/logininfo/v1.1/logindata?" +
                 "client_request_id=${authorizationContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-                authorizationContext.exchangeToken, mode, credentialsService.getCredentials())
+                authorizationContext.exchangeToken, mode, metadataService.getMetadata())
                 .GET()
                 .build()
 
@@ -80,13 +80,14 @@ class EtoroHttpClient {
 
     fun openPosition(position: Position, mode: TradingMode): Transaction {
         val type = position.type.equals(PositionType.BUY)
-        val price = watchlist.getPrice(position.instrumentId, position.type)
+        val instrumentId = position.instrumentId ?: watchlist.getInstrumentIdByName(position.name ?: "")
+        val price = watchlist.getPrice(instrumentId, position.type)
 
-        if (watchlist.isMarketOpen(position.instrumentId)) {
-            val positionRequestBody = EtoroPosition(null, position.instrumentId, type, position.leverage, position.stopLoss, position.takeProfit, false, 50,
+        if (watchlist.isMarketOpen(instrumentId)) {
+            val positionRequestBody = EtoroPosition(null, instrumentId, type, position.leverage, position.stopLossRate, position.takeProfitRate, false, 50,
                     0.01, false, false, position.amount, ViewContext(price), null)
 
-            val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode, credentialsService.getCredentials())
+            val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode, metadataService.getMetadata())
                     .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
                     .build()
 
@@ -99,7 +100,7 @@ class EtoroHttpClient {
 
     fun closePosition(id: String, mode: TradingMode) {
         val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",
-                authorizationContext.exchangeToken, mode, credentialsService.getCredentials())
+                authorizationContext.exchangeToken, mode, metadataService.getMetadata())
                 .DELETE()
                 .build()
 
