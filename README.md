@@ -48,7 +48,7 @@ curl -X POST \
   -H 'Content-Type: application/json' \
   -H 'mode: Demo' \
   -d '{
-	"instrumentId": "btc",
+	"name": "btc",
 	"type": "BUY",
 	"amount": 100,
 	"leverage": 2,
