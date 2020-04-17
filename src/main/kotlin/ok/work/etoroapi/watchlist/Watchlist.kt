@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import ok.work.etoroapi.client.EtoroHttpClient
 import ok.work.etoroapi.client.websocket.EtoroLightStreamerClient
 import ok.work.etoroapi.model.PositionType
+import org.apache.xpath.operations.Bool
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.io.File
@@ -19,7 +20,7 @@ data class EtoroAsset(val InstrumentID: String, val SymbolFull: String, val Inst
     }
 }
 
-data class Asset(val id: String, val name: String, val fullName: String, var buy: Double?, var sell: Double?, var marketOpen: Boolean?)
+data class Asset(val id: String, val name: String, val fullName: String, var buy: Double?, var sell: Double?, var marketOpen: Boolean?, var askDiscounted: Double, var bidDiscounted: Double)
 
 @Component
 class Watchlist {
@@ -61,7 +62,7 @@ class Watchlist {
         val asset = assetsMapIDs[id]
         if (asset != null) {
             lightStreamerClient.subscribeById(asset.InstrumentID)
-            watchlist[id] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null, null)
+            watchlist[id] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null, null, 0.0, 0.0)
             saveToFile()
             return watchlist
         } else {
@@ -73,7 +74,7 @@ class Watchlist {
         val asset = assetsMapNames[name.toLowerCase()]
         if (asset != null) {
             lightStreamerClient.subscribeById(asset.InstrumentID)
-            watchlist[asset.InstrumentID] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null, null)
+            watchlist[asset.InstrumentID] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null, null, 0.0, 0.0)
             saveToFile()
             return watchlist
         } else {
@@ -104,9 +105,11 @@ class Watchlist {
     fun getPrice(id: String, type: PositionType): Double {
         val asset = watchlist[id]
         if (asset != null) {
-            if (type.equals(PositionType.BUY) && asset.buy != null) {
+            if (type == PositionType.BUY && asset.buy != null) {
+                if (asset.askDiscounted > 0) return asset.askDiscounted
                 return asset.buy!!
-            } else if (type.equals(PositionType.SELL) && asset.sell != null) {
+            } else if (type == PositionType.SELL && asset.sell != null) {
+                if (asset.bidDiscounted > 0) return asset.bidDiscounted
                 return asset.sell!!
             } else {
                 throw RuntimeException("None $type price available for id $id")
@@ -125,5 +128,10 @@ class Watchlist {
 
     fun getInstrumentIdByName(name: String): String {
         return assetsMapNames[name]?.InstrumentID ?: throw RuntimeException("No InstrumentID was found for the name: $name")
+    }
+
+    fun updateDiscounted(id: String, ask: Double, bid: Double) {
+        watchlist[id]?.askDiscounted = ask
+        watchlist[id]?.bidDiscounted = bid
     }
 }

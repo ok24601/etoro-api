@@ -28,6 +28,7 @@ dependencies {
 
     compile("org.jetbrains.kotlin:kotlin-reflect")
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    compile  ("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
     compile("com.lightstreamer:ls-javase-client:3.1.1")
 

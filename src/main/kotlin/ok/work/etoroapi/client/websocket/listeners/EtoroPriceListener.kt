@@ -23,6 +23,7 @@ class EtoroPriceListener : EtoroListener() {
 
         watchlist.updatePrice(id, itemUpdate.getValue(2), itemUpdate.getValue(3))
         watchlist.updateMarketStatus(id, itemUpdate.getValue(4)!!.toBoolean())
+        watchlist.updateDiscounted(id, itemUpdate.getValue(16)!!.toDouble(), itemUpdate.getValue(17)!!.toDouble())
 
         val log = StringBuilder()
         for (i in 1..subscriptionFields.size) {
