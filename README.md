@@ -56,7 +56,7 @@ curl -X POST \
 	"stopLossRate": 8000
 }'
 ````
-##### Make sure that "takeProfit" and "stopLoss" have valid values.
+##### Make sure that "takeProfit" and "stopLoss" have valid values, you can also skip them for x1 positions.
 #### Response:
 ````
 {
