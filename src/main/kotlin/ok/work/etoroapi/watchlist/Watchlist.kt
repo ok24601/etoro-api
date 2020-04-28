@@ -74,7 +74,7 @@ class Watchlist {
         val asset = assetsMapNames[name.toLowerCase()]
         if (asset != null) {
             lightStreamerClient.subscribeById(asset.InstrumentID)
-            watchlist[asset.InstrumentID] = Asset(asset.InstrumentID, asset.SymbolFull, asset.InstrumentDisplayName, null, null, null, 0.0, 0.0)
+            watchlist[asset.InstrumentID] = Asset(asset.InstrumentID, asset.SymbolFull.toLowerCase(), asset.InstrumentDisplayName, null, null, null, 0.0, 0.0)
             saveToFile()
             return watchlist
         } else {
@@ -102,14 +102,14 @@ class Watchlist {
         watchlist[id]?.sell = sell?.toDouble()
     }
 
-    fun getPrice(id: String, type: PositionType): Double {
+    fun getPrice(id: String, type: PositionType, discounted: Boolean): Double {
         val asset = watchlist[id]
         if (asset != null) {
             if (type == PositionType.BUY && asset.buy != null) {
-                if (asset.askDiscounted > 0) return asset.askDiscounted
+                if (discounted) return asset.askDiscounted
                 return asset.buy!!
             } else if (type == PositionType.SELL && asset.sell != null) {
-                if (asset.bidDiscounted > 0) return asset.bidDiscounted
+                if (discounted) return asset.bidDiscounted
                 return asset.sell!!
             } else {
                 throw RuntimeException("None $type price available for id $id")

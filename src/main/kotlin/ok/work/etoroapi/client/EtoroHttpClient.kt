@@ -26,7 +26,13 @@ data class ViewContext(val ClientViewRate: Double)
 data class EtoroPosition(val PositionID: String?, val InstrumentID: String, val IsBuy: Boolean, val Leverage: Int,
                          val StopLossRate: Double, val TakeProfitRate: Double, val IsTslEnabled: Boolean,
                          val View_MaxPositionUnits: Int, val View_Units: Double, val View_openByUnits: Boolean?,
-                         val Amount: Int, val ViewRateContext: ViewContext?, val OpenDateTime: String?)
+                         val Amount: Int, val ViewRateContext: ViewContext?, val OpenDateTime: String?, val isDiscounted: Boolean?)
+
+data class AssetInfoRequest(val instrumentIds: Array<String>)
+
+data class AssetInfo(val InstrumentID: Int, val AllowDiscountedRates: Boolean)
+
+data class AssetInfoResponse(val Instruments: Array<AssetInfo>)
 
 @Component
 class EtoroHttpClient {
@@ -81,11 +87,33 @@ class EtoroHttpClient {
     fun openPosition(position: Position, mode: TradingMode): Transaction {
         val type = position.type.equals(PositionType.BUY)
         val instrumentId = position.instrumentId ?: watchlist.getInstrumentIdByName(position.name ?: "")
-        val price = watchlist.getPrice(instrumentId, position.type)
+        val assetInfo = getAssetInfo(instrumentId, mode)
+        val price = watchlist.getPrice(instrumentId, position.type,assetInfo.getBoolean("AllowDiscountedRates"))
+        val leverages = assetInfo.getJSONArray("Leverages")
+        val minPositionAmount = assetInfo.getInt("MinPositionAmount")
+        val minPositionAmountAbsolute = assetInfo.getInt("MinPositionAmountAbsolute")
 
         if (watchlist.isMarketOpen(instrumentId)) {
-            val positionRequestBody = EtoroPosition(null, instrumentId, type, position.leverage, position.stopLossRate, position.takeProfitRate, false, 5000,
-                    0.01, false,  position.amount, ViewContext(price), null)
+            if (!leverages.contains(position.leverage)) {
+                throw RuntimeException("x${position.leverage} is not permitted. You can use $leverages")
+            }
+            if (minPositionAmount > position.leverage * position.amount || position.amount < minPositionAmountAbsolute) {
+                throw RuntimeException("You cannot open less than minimum position amount $$minPositionAmount, and minimum absolute amount $$minPositionAmountAbsolute")
+            }
+            if (position.type == PositionType.SELL) {
+                if (position.stopLossRate == 0.0) {
+//                    val maxSL = assetInfo.getInt("MaxStopLossPercentage")
+//                    position.stopLossRate = (position.amount * maxSL / 100).toDouble()
+                    throw RuntimeException("stopLossRate was not specified")
+                }
+                if (position.takeProfitRate == 0.0) {
+//                    val maxTP = assetInfo.getInt("MaxTakeProfitPercentage")
+//                    position.takeProfitRate = (position.amount * maxTP / 100).toDouble()
+                    throw RuntimeException("takeProfitRate was not specified")
+                }
+            }
+            val positionRequestBody = EtoroPosition(null, instrumentId, type, position.leverage, position.stopLossRate, position.takeProfitRate, false, assetInfo.getInt("MaxPositionUnits"),
+                    0.01, false,  position.amount, ViewContext(price), null, assetInfo.getBoolean("AllowDiscountedRates"))
 
             val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode, metadataService.getMetadata())
                     .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
@@ -109,6 +137,16 @@ class EtoroHttpClient {
         if (code != 200) {
             throw RuntimeException("Failed close positionID $id")
         }
+    }
+
+    fun getAssetInfo(id: String, mode: TradingMode): JSONObject {
+        val body = AssetInfoRequest(arrayOf(id))
+        val req = prepareRequest("sapi/trade-real/instruments/private/index?client_request_id=${authorizationContext.requestId}",
+                authorizationContext.exchangeToken, mode, metadataService.getMetadata())
+                .POST(HttpRequest.BodyPublishers.ofString(JSONObject(body).toString()))
+                .build()
+
+        return JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getJSONArray("Instruments").getJSONObject(0)
     }
 
 }

@@ -30,18 +30,46 @@ Your watchlist will be persisted locally in the watchlist.json if you start the 
 
 ### Example
 
-### Buy BTC in Demo mode
-1 Add btc to watchlist
+### Buy in Demo mode
+###1 Adding asset to your watchlist
+####Bitcoin
 ````
  curl -X PUT \
-   http://localhost:8088/etoro-api/watchlist/byId \
+   http://localhost:8088/etoro-api/watchlist/byName \
    -H 'Content-Type: application/json' \
    -H 'cache-control: no-cache' \
    -d '{
  	"param": "btc"
  }'
 ````
-2 Open position 
+#####NASDQ100
+````
+ curl -X PUT \
+   http://localhost:8088/etoro-api/watchlist/byName \
+   -H 'Content-Type: application/json' \
+   -H 'cache-control: no-cache' \
+   -d '{
+ 	"param": "nsdq100"
+ }'
+````
+#####GOLD
+````
+ curl -X PUT \
+   http://localhost:8088/etoro-api/watchlist/byName \
+   -H 'Content-Type: application/json' \
+   -H 'cache-control: no-cache' \
+   -d '{
+ 	"param": "gold"
+ }'
+````
+####1.1 Review your watchlist
+````
+curl -X GET \
+  http://localhost:8088/etoro-api/watchlist \
+  -H 'cache-control: no-cache' \
+  -H 'mode: Demo'
+````
+###2 Open position 
 ````
 curl -X POST \
   http://localhost:8088/etoro-api/positions/open \
@@ -53,10 +81,11 @@ curl -X POST \
 	"amount": 100,
 	"leverage": 2,
 	"takeProfitRate": 13000,
-	"stopLossRate": 8000
+	"stopLossRate": 1000
 }'
 ````
 ##### Make sure that "takeProfit" and "stopLoss" have valid values.
+##### for some trades (all x1 buy) they are optional.
 #### Response:
 ````
 {
@@ -82,6 +111,7 @@ curl -X POST \
     }
 }
 ````
+#### you can use positionID to close this position later on.
 
 ### Close BTC position in Demo mode
 ````
