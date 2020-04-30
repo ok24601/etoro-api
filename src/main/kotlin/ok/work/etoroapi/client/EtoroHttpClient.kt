@@ -103,12 +103,10 @@ class EtoroHttpClient {
             if (position.type == PositionType.SELL) {
                 if (position.stopLossRate == 0.0) {
                     val maxSL = assetInfo.getInt("MaxStopLossPercentage")
-                    position.stopLossRate = price + (price * maxSL / 100).toDouble()
-                //    throw RuntimeException("stopLossRate was not specified")
+                    position.stopLossRate = price + (price * maxSL / 100)
                 }
                 if (position.takeProfitRate == 0.0) {
-                    position.takeProfitRate = (price * 50 / 100).toDouble()
-                 //   throw RuntimeException("takeProfitRate was not specified")
+                    position.takeProfitRate = (price * 50 / 100)
                 }
             }
             val positionRequestBody = EtoroPosition(null, instrumentId, type, position.leverage, position.stopLossRate, position.takeProfitRate, false, assetInfo.getInt("MaxPositionUnits"),
