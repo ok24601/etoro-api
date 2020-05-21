@@ -12,13 +12,28 @@ import ok.work.etoroapi.transactions.Transaction
 import ok.work.etoroapi.transactions.TransactionPool
 import ok.work.etoroapi.watchlist.EtoroAsset
 import ok.work.etoroapi.watchlist.Watchlist
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import org.springframework.web.client.RestTemplate
+import java.io.IOException
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json
+import org.seleniumhq.jetty7.util.ajax.JSON
+import org.springframework.http.MediaType
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json
+
+
+
 
 data class ViewContext(val ClientViewRate: Double)
 
@@ -50,6 +65,9 @@ class EtoroHttpClient {
     private lateinit var metadataService: EtoroMetadataService
 
     private val client = HttpClient.newHttpClient()
+
+    var okHttpClient = OkHttpClient()
+
 
 
     fun getPositions(mode: TradingMode): List<EtoroPosition> {
@@ -123,13 +141,25 @@ class EtoroHttpClient {
 
     }
 
-    fun closePosition(id: String, mode: TradingMode) {
-        val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",
-                authorizationContext.exchangeToken, mode, metadataService.getMetadata())
-                .DELETE()
-                .build()
+//    fun closePosition(id: String, mode: TradingMode) {
+////     //   restTemplate.exchange("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}", HttpEntity("{}"), HttpMethod.DELETE, null)
+//        val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",
+//                authorizationContext.exchangeToken, mode, metadataService.getMetadata())
+//                .DELETE()
+//                .build()
+//
+//        val code = client.send(req, HttpResponse.BodyHandlers.ofString()).statusCode()
+//
+//        if (code != 200) {
+//            throw RuntimeException("Failed close positionID $id")
+//        }
+//    }
 
-        val code = client.send(req, HttpResponse.BodyHandlers.ofString()).statusCode()
+    fun deletePosition(id: String, mode: TradingMode) {
+        val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",  authorizationContext.exchangeToken, mode, metadataService.getMetadata())
+        req.delete( RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), "{}"))
+
+        val code = okHttpClient.newCall(req.build()).execute().code
 
         if (code != 200) {
             throw RuntimeException("Failed close positionID $id")

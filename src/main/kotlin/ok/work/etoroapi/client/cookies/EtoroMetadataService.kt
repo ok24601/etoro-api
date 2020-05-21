@@ -3,14 +3,15 @@ package ok.work.etoroapi.client.cookies
 import org.openqa.selenium.phantomjs.PhantomJSDriver
 import org.openqa.selenium.phantomjs.PhantomJSDriverService
 import org.openqa.selenium.remote.DesiredCapabilities
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 
-data class EtoroMetadata(val cookies: String, val lsPassword: String)
+data class EtoroMetadata(val cookies: String, val lsPassword: String, val baseUrl: String, val domain: String)
 
 @Component
-class EtoroMetadataService {
+class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Value("\${etoro.domain}") val domain: String) {
 
     private lateinit var cookies: String
 
@@ -34,7 +35,7 @@ class EtoroMetadataService {
 
         val driver = PhantomJSDriver(caps)
 
-        driver.get("https://www.etoro.com/")
+        driver.get(baseUrl)
         Thread.sleep(3000)
 
         val cookiesSet = driver.manage().cookies
@@ -46,7 +47,11 @@ class EtoroMetadataService {
     }
 
     fun getMetadata(): EtoroMetadata {
-        return EtoroMetadata(cookies,
-                """{"UserAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36","ApplicationVersion":"213.0.2","ApplicationName":"ReToro","AccountType":"Demo","ApplicationIdentifier":"ReToro"}""")
+        return EtoroMetadata(
+                cookies,
+                """{"UserAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36","ApplicationVersion":"213.0.2","ApplicationName":"ReToro","AccountType":"Demo","ApplicationIdentifier":"ReToro"}""",
+                baseUrl,
+                domain
+        )
     }
 }

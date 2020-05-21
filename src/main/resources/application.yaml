@@ -3,3 +3,10 @@ server:
   port: 8088
   servlet:
     context-path: /etoro-api
+
+
+etoro:
+  baseUrl: https://www.etoro.com
+  domain: www.etoro.com
+
+

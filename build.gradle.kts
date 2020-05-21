@@ -42,6 +42,9 @@ dependencies {
     compile("org.seleniumhq.selenium:selenium-java:3.0.1")
     compile("com.github.detro.ghostdriver:phantomjsdriver:1.0.1")
 
+    // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    compile("com.squareup.okhttp3:okhttp:4.7.2")
+
     testCompile("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }

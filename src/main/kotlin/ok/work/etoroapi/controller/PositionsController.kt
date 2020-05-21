@@ -29,7 +29,7 @@ class PositionsController {
 
     @DeleteMapping(value = ["/close"])
     fun closePosition(id: String, @RequestHeader(defaultValue = "Demo") mode: String) {
-        httpClient.closePosition(id, ofString(mode))
+        httpClient.deletePosition(id, ofString(mode))
     }
 
 }
