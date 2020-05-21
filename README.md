@@ -18,8 +18,15 @@ export PASSWORD=yourpassword
 ````
  java -jar build/libs/etoro-api-0.0.1-SNAPSHOT.jar
 ````
+### Execute Requests
+
+ All requests are in the postman collection under postman/
+ import it to the Postman and try it out.
 
 ### Using API server
+
+ All requests are in the postman collection under postman/
+ import it to the Postman and try it out.
 
 In order to trade you have to add asset to watchlist first, then you can open or close positions with this asset.
 Your watchlist will be persisted locally in the watchlist.json if you start the server from the project folder.
@@ -28,7 +35,9 @@ Your watchlist will be persisted locally in the watchlist.json if you start the 
 - add assets to watchlist http://localhost:8088/etoro-api/watchlist/
 - open/close positions http://localhost:8088/etoro-api/positions/
 
-### Example
+
+
+### Examples
 
 ### Buy in Demo mode
 ###1 Adding asset to your watchlist
