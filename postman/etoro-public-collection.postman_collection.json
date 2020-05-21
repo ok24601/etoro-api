@@ -1,0 +1,208 @@
+{
+	"info": {
+		"_postman_id": "14293e2a-02c8-466c-8b98-5c1bc312775a",
+		"name": "etoro-public-collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "new-api",
+			"item": [
+				{
+					"name": "get watchlist",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/etoro-api/watchlist",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"etoro-api",
+								"watchlist"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add to watchlist by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "100000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8088/etoro-api/watchlist/byId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"etoro-api",
+								"watchlist",
+								"byId"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add to watchlist by name",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"param\": \"nsdq100\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8088/etoro-api/watchlist/byName",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"etoro-api",
+								"watchlist",
+								"byName"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add position",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "mode",
+								"value": "Demo",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"aapl\",\n\t\"type\": \"BUY\",\n\t\"amount\": 1000,\n\t\"leverage\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8088/etoro-api/positions/open",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"etoro-api",
+								"positions",
+								"open"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get positions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "mode",
+								"value": "Demo",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "text/plain",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8088/etoro-api/positions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"etoro-api",
+								"positions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete position",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "mode",
+								"value": "Demo",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8088/etoro-api/positions/close?id=1687265764",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"etoro-api",
+								"positions",
+								"close"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1687265764"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
