@@ -42,7 +42,7 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
         cookies = cookiesSet.toList().map { cookie -> "${cookie.name}=${cookie.value}" }.joinToString("; ")
         println("cookies: $cookies")
 
-        driver.close()
+        driver.quit()
 
     }
 
