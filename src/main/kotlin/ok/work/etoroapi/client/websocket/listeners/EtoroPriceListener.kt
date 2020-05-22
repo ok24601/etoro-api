@@ -21,15 +21,17 @@ class EtoroPriceListener : EtoroListener() {
     override fun onItemUpdate(itemUpdate: ItemUpdate) {
         val id = itemUpdate.itemName.replace("instrument:", "")
 
-        watchlist.updatePrice(id, itemUpdate.getValue(2), itemUpdate.getValue(3))
-        watchlist.updateMarketStatus(id, itemUpdate.getValue(4)!!.toBoolean())
-        watchlist.updateDiscounted(id, itemUpdate.getValue(16)!!.toDouble(), itemUpdate.getValue(17)!!.toDouble())
+        if (watchlist.getById(id) !== null ) {
+            watchlist.updatePrice(id, itemUpdate.getValue(2), itemUpdate.getValue(3))
+            watchlist.updateMarketStatus(id, itemUpdate.getValue(4)!!.toBoolean())
+            watchlist.updateDiscounted(id, itemUpdate.getValue(16)!!.toDouble(), itemUpdate.getValue(17)!!.toDouble())
 
-        val log = StringBuilder()
-        for (i in 1..subscriptionFields.size) {
-            log.append("${itemUpdate.getValue(i)} | ")
+            val log = StringBuilder()
+            for (i in 1..subscriptionFields.size) {
+                log.append("${itemUpdate.getValue(i)} | ")
+            }
+            println(log.toString())
         }
-        println(log.toString())
     }
 
 

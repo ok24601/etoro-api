@@ -15,7 +15,7 @@ val subscriptionFields = arrayOf( "InstrumentID", "Ask", "Bid", "IsMarketOpen",
         "AllowBuy", "AllowSell",
         "LastExecution",
         "OfficialClosingPrice", "PriceRateID", "UnitMarginAsk", "UnitMarginBid",
-        "MaxPositionUnits", "IsInstrumentActive", "AskDiscounted", "BidDiscounted","UnitMarginAskDiscounted", "UnitMarginBidDiscounted", "isDiscounted")
+        "MaxPositionUnits", "IsInstrumentActive", "AskDiscounted", "BidDiscounted","UnitMarginAskDiscounted", "UnitMarginBidDiscounted")
 
 @Component
 class EtoroLightStreamerClient {

@@ -55,6 +55,10 @@ class Watchlist {
         println(assetsMapIDs)
     }
 
+    fun getById(id: String): Asset? {
+        return watchlist[id]
+    }
+
     fun addAssetToWatchlistById(id: String): MutableMap<String, Asset> {
         if (watchlist[id] != null) {
             throw RuntimeException("Already in watchlist $watchlist")
@@ -133,5 +137,15 @@ class Watchlist {
     fun updateDiscounted(id: String, ask: Double, bid: Double) {
         watchlist[id]?.askDiscounted = ask
         watchlist[id]?.bidDiscounted = bid
+    }
+
+    fun removeById(id: String) {
+        watchlist.remove(id)
+        saveToFile()
+    }
+
+    fun  removeByName(name: String) {
+        val id = assetsMapNames[name.toLowerCase()]?.InstrumentID !!
+        removeById(id)
     }
 }

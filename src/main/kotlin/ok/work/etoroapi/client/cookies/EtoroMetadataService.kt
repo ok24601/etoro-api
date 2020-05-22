@@ -36,7 +36,7 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
         val driver = PhantomJSDriver(caps)
 
         driver.get(baseUrl)
-        Thread.sleep(3000)
+        Thread.sleep(5000)
 
         val cookiesSet = driver.manage().cookies
         cookies = cookiesSet.toList().map { cookie -> "${cookie.name}=${cookie.value}" }.joinToString("; ")
