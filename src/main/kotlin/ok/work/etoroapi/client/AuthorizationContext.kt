@@ -53,7 +53,6 @@ class AuthorizationContext {
                 .header("x-sts-gatewayappid", "90631448-9A01-4860-9FA5-B4EBCDE5EA1D")
                 .header("applicationidentifier", "ReToro")
                 .header("applicationversion", "212.0.7")
-                .header("origin", metadataService.baseUrl)
                 .header("sec-fetch-site", "same-origin")
                 .header("sec-fetch-mode", "cors")
                 .header("referer", "${metadataService.baseUrl}/login")
