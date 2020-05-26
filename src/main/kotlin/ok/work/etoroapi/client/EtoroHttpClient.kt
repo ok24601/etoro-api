@@ -41,7 +41,7 @@ data class ViewContext(val ClientViewRate: Double)
 data class EtoroPosition(val PositionID: String?, val InstrumentID: String, val IsBuy: Boolean, val Leverage: Int,
                          val StopLossRate: Double, val TakeProfitRate: Double, val IsTslEnabled: Boolean,
                          val View_MaxPositionUnits: Int, val View_Units: Double, val View_openByUnits: Boolean?,
-                         val Amount: Int, val ViewRateContext: ViewContext?, val OpenDateTime: String?, val isDiscounted: Boolean?)
+                         val Amount: Int, val ViewRateContext: ViewContext?, val OpenDateTime: String?, val IsDiscounted: Boolean?)
 
 data class AssetInfoRequest(val instrumentIds: Array<String>)
 
