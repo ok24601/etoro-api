@@ -84,6 +84,12 @@
             <artifactId>selenium-java</artifactId>
             <version>3.0.1</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.codeborne</groupId>
+                    <artifactId>phantomjsdriver</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.detro.ghostdriver</groupId>
@@ -125,6 +131,18 @@
                 <configuration>
                     <classifier>exec</classifier>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>

@@ -141,19 +141,6 @@ class EtoroHttpClient {
 
     }
 
-//    fun closePosition(id: String, mode: TradingMode) {
-////     //   restTemplate.exchange("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}", HttpEntity("{}"), HttpMethod.DELETE, null)
-//        val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",
-//                authorizationContext.exchangeToken, mode, metadataService.getMetadata())
-//                .DELETE()
-//                .build()
-//
-//        val code = client.send(req, HttpResponse.BodyHandlers.ofString()).statusCode()
-//
-//        if (code != 200) {
-//            throw RuntimeException("Failed close positionID $id")
-//        }
-//    }
 
     fun deletePosition(id: String, mode: TradingMode) {
         val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",  authorizationContext.exchangeToken, mode, metadataService.getMetadata())
