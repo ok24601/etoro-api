@@ -17,7 +17,7 @@ class AssetsController {
     lateinit var httpClient: EtoroHttpClient
 
     @GetMapping
-    fun getAssetInfo(@RequestParam("id") id: String): JSONObject {
-        return httpClient.getAssetInfo(id, TradingMode.REAL)
+    fun getAssetInfo(@RequestParam("id") id: String): Map<String, Any> {
+        return httpClient.getAssetInfo(id, TradingMode.REAL).toMap()
     }
 }
