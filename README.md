@@ -128,6 +128,13 @@ curl -X DELETE \
   'http://localhost:8088/etoro-api/positions/close?id=1621284697' \
   -H 'mode: Demo'
 ````
+### Donate
+
+* [$2](https://www.paypal.me/oleh2208/2)
+
+* [$5](https://www.paypal.me/oleh2208/5)
+
+* [$10](https://www.paypal.me/oleh2208/10)
 
 
 
