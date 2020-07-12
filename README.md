@@ -1,5 +1,5 @@
 ### Etoro trading API
-
+![CI Docker Image Build](https://github.com/mkjiau/etoro-api/workflows/CI%20Docker%20Image%20Build/badge.svg?branch=master)
 
 ##### Requirments:
 - java 11 (JDK11)
@@ -43,13 +43,19 @@ Your watchlist will be persisted locally in the watchlist.json if you start the 
 docker build -t etoro-api .
 docker run -p 8088:8088 -e LOGIN=mkjiau -e PASSWORD=ooooooooo -it --rm --name my-etoro-api etoro-api
 ```
+or
+```sh
+# https://hub.docker.com/r/mkjiau/etoro-api
+docker pull mkjiau/etoro-api
+docker run -p 8088:8088 -e LOGIN=mkjiau -e PASSWORD=ooooooooo -it --rm --name my-etoro-api mkjiau/etoro-api
+```
 
 
 ### Examples
 
 ### Buy in Demo mode
-###1 Adding asset to your watchlist
-####Bitcoin
+### 1 Adding asset to your watchlist
+#### Bitcoin
 ````
  curl -X PUT \
    http://localhost:8088/etoro-api/watchlist/byName \
@@ -59,7 +65,7 @@ docker run -p 8088:8088 -e LOGIN=mkjiau -e PASSWORD=ooooooooo -it --rm --name my
  	"param": "btc"
  }'
 ````
-#####NASDQ100
+##### NASDQ100
 ````
  curl -X PUT \
    http://localhost:8088/etoro-api/watchlist/byName \
@@ -69,7 +75,7 @@ docker run -p 8088:8088 -e LOGIN=mkjiau -e PASSWORD=ooooooooo -it --rm --name my
  	"param": "nsdq100"
  }'
 ````
-#####GOLD
+##### GOLD
 ````
  curl -X PUT \
    http://localhost:8088/etoro-api/watchlist/byName \
@@ -79,14 +85,14 @@ docker run -p 8088:8088 -e LOGIN=mkjiau -e PASSWORD=ooooooooo -it --rm --name my
  	"param": "gold"
  }'
 ````
-####1.1 Review your watchlist
+#### 1.1 Review your watchlist
 ````
 curl -X GET \
   http://localhost:8088/etoro-api/watchlist \
   -H 'cache-control: no-cache' \
   -H 'mode: Demo'
 ````
-###2 Open position 
+### 2 Open position 
 ````
 curl -X POST \
   http://localhost:8088/etoro-api/positions/open \
