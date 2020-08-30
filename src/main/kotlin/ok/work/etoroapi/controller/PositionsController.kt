@@ -22,6 +22,11 @@ class PositionsController {
         return httpClient.getPositions(ofString(mode))
     }
 
+    @GetMapping(value = ["/history"])
+    fun getHistoryPositions(@RequestParam(defaultValue = "100") limit: String, @RequestParam(defaultValue = "1") page: String, @RequestParam(defaultValue = "") StartTime: String, @RequestHeader(defaultValue = "Demo") mode: String): List<EtoroPosition> {
+        return httpClient.getHistoryPositions(limit, page, StartTime, ofString(mode))
+    }
+
     @PostMapping(value = ["/open"])
     fun openPosition(@RequestBody position: Position, @RequestHeader(defaultValue = "Demo") mode: String): Transaction {
         return httpClient.openPosition(position, ofString(mode))
