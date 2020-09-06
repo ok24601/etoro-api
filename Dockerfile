@@ -8,5 +8,5 @@ COPY . .
 RUN ./gradlew build
 ENV OPENSSL_CONF=/etc/ssl/
 EXPOSE 8088
-# ENTRYPOINT ["java","-jar","/artifact/app/build/libs/*.jar"]
-ENTRYPOINT ["java","-jar","/artifact/app/build/libs/etoro-api-0.1.2.jar"]
+ENTRYPOINT ["java","-jar","/artifact/app/build/libs/*.jar"]
+#ENTRYPOINT ["java","-jar","/artifact/app/build/libs/etoro-api-0.1.2.jar"]
