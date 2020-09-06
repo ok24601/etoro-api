@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ok.work"
-version = "0.1.2-husky"
+version = "0.1.2"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
