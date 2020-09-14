@@ -37,6 +37,8 @@ data class EtoroPositionForOpen(val PositionID: String?, val InstrumentID: Strin
                          val View_MaxPositionUnits: Int, val View_Units: Double, val View_openByUnits: Boolean?,
                          val Amount: Double, val ViewRateContext: ViewContext?, val OpenDateTime: String?, val IsDiscounted: Boolean?)
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class EtoroPositionForUpdate(val PositionID: String, val StopLossRate: Double?, val TakeProfitRate: Double?, val IsTslEnabled: Boolean?)
 
 data class AssetInfoRequest(val instrumentIds: Array<String>)
 
@@ -82,7 +84,14 @@ class EtoroHttpClient {
 
         val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
-        return mapper.readValue(response)
+
+        val positions : List<EtoroPosition> = mapper.readValue(response)
+        return positions.map { position ->
+            val instrumentId = position.InstrumentID
+            val assetInfo = getAssetInfo(instrumentId, mode)
+            val price = watchlist.getPrice(instrumentId, (if(position.IsBuy) PositionType.SELL else PositionType.BUY),assetInfo.getBoolean("AllowDiscountedRates"))
+            position.copy(NetProfit = ( price - position.OpenRate!!) * position.Leverage * position.Amount / position.OpenRate )
+        }
     }
 
     fun getHistoryPositions(limit: String = "100", page: String = "1", StartTime: String = "", mode: TradingMode): List<EtoroPosition> {
@@ -166,8 +175,6 @@ class EtoroHttpClient {
         }
         position.takeProfitRate = position.takeProfitRate.round(assetInfo.getInt("Precision"))
         position.stopLossRate = position.stopLossRate.round(assetInfo.getInt("Precision"))
-        println(price)
-        println(position)
 
         val positionRequestBody = EtoroPositionForOpen(null, instrumentId, type, position.leverage, position.stopLossRate, position.takeProfitRate, position.tsl, assetInfo.getInt("MaxPositionUnits"),
                     0.01, false,  position.amount, ViewContext(price), null, assetInfo.getBoolean("AllowDiscountedRates"))
@@ -185,6 +192,20 @@ class EtoroHttpClient {
 
     }
 
+    fun updatePosition(positionRequestBody: EtoroPositionForUpdate, mode: TradingMode): Transaction {
+//        val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",  authorizationContext.exchangeToken, mode, metadataService.getMetadata())
+//        req.put( RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), "{}"))
+        val id = positionRequestBody.PositionID
+        val requestBody =  JSONObject(positionRequestBody)
+
+        val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode, metadataService.getMetadata())
+                .PUT(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
+                .build()
+
+        val body = client.send(req, HttpResponse.BodyHandlers.ofString()).body()
+        val transactionId = JSONObject(body).getString("Token")
+        return transactionPool.getFromPool(transactionId) ?: Transaction(transactionId, null, null, null, null)
+    }
 
     fun deletePosition(id: String, mode: TradingMode) {
         val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",  authorizationContext.exchangeToken, mode, metadataService.getMetadata())
