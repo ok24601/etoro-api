@@ -23,8 +23,12 @@ jobs:
       
     - uses: actions/setup-java@v1
       with:
-        java-version: 1.8
-    - run: ./gradlew build
+        java-version: 14
+
+    - uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: build
+
     - name: Build Jar
       uses: actions/upload-artifact@v2
       with:
