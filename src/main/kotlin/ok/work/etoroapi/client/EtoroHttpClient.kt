@@ -86,11 +86,16 @@ class EtoroHttpClient {
                 .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
 
         val positions : List<EtoroPosition> = mapper.readValue(response)
-        return positions.map { position ->
-            val instrumentId = position.InstrumentID
+        return positions.map {
+            val instrumentId = it.InstrumentID
             val assetInfo = getAssetInfo(instrumentId, mode)
-            val price = watchlist.getPrice(instrumentId, (if(position.IsBuy) PositionType.SELL else PositionType.BUY),assetInfo.getBoolean("AllowDiscountedRates"))
-            position.copy(NetProfit = ( price - position.OpenRate!!) * position.Leverage * position.Amount / position.OpenRate )
+            if(it.IsBuy){
+                val price = watchlist.getPrice(instrumentId, PositionType.SELL,assetInfo.getBoolean("AllowDiscountedRates"))
+                it.copy(NetProfit = ( price - it.OpenRate!!) * it.Leverage * it.Amount / it.OpenRate )
+            } else {
+                val price = watchlist.getPrice(instrumentId, PositionType.BUY,assetInfo.getBoolean("AllowDiscountedRates"))
+                it.copy(NetProfit = ( it.OpenRate!! - price) * it.Leverage * it.Amount / it.OpenRate )
+            }
         }
     }
 
