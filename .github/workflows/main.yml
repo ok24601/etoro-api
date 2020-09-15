@@ -20,20 +20,37 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: Checkout code for later image build
       uses: actions/checkout@v2
+      
+    - name: Set up JDK 14
+      uses: actions/setup-java@v1
+        with:
+          java-version: 14
 
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v1.1.0
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build and run Tests with Gradle
+      run: ./gradlew build
+
+    - name: Build Jar
+      uses: actions/upload-artifact@v2
       with:
-        # Username used to log in to a Docker registry. If not set then no login will occur
-        username: tszkan # optional
-        # Password or personal access token used to log in to a Docker registry. If not set then no login will occur
-        password: ${{ secrets.DOCKER_PASSWORD }} # optional
-        # Server address of Docker registry. If not set then will default to Docker Hub
-        registry: docker.io # optional
-        # Docker repository to tag the image with
-        repository: mkjiau/etoro-api
-        # Automatically tags the built image with the git reference as per the readme
-        tag_with_ref: true # optional
+        name: jar
+        path: build/libs/*.jar
+    
+#     - name: Build and push Docker images
+#       uses: docker/build-push-action@v1.1.0
+#       with:
+#         # Username used to log in to a Docker registry. If not set then no login will occur
+#         username: tszkan # optional
+#         # Password or personal access token used to log in to a Docker registry. If not set then no login will occur
+#         password: ${{ secrets.DOCKER_PASSWORD }} # optional
+#         # Server address of Docker registry. If not set then will default to Docker Hub
+#         registry: docker.io # optional
+#         # Docker repository to tag the image with
+#         repository: mkjiau/etoro-api
+#         # Automatically tags the built image with the git reference as per the readme
+#         tag_with_ref: true # optional
 
     - name: Job completed
       run: |
