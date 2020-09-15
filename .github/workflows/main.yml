@@ -25,9 +25,7 @@ jobs:
       with:
         java-version: 14
 
-    - uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: build
+    - run: ./gradlew wrapper --gradle-version=6.3 build
 
     - name: Build Jar
       uses: actions/upload-artifact@v2
