@@ -174,7 +174,7 @@ class EtoroHttpClient {
                 }
             }
             when {
-                position.takeProfitAmountRate > 0.0 -> position.takeProfitRate = price + (price * position.stopLossAmountRate / 100) / position.leverage
+                position.takeProfitAmountRate > 0.0 -> position.takeProfitRate = price + (price * position.takeProfitAmountRate / 100) / position.leverage
                 position.takeProfitRate > 0.0 -> position.takeProfitRate = price + (price * position.takeProfitRate / 100)
                 else -> {
                     position.takeProfitRate = price + (price * 50 / 100)
