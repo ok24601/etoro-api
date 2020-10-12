@@ -151,6 +151,7 @@ class EtoroHttpClient {
             when {
                 position.stopLossAmountRate > 0.0 -> position.stopLossRate = price + (price * position.stopLossAmountRate / 100) / position.leverage
                 position.stopLossRate > 0.0 -> position.stopLossRate = price + (price * position.stopLossRate / 100)
+                position.stopLoss > 0.0 -> position.stopLossRate = position.stopLoss
                 else -> {
                     val maxSL = assetInfo.getInt("MaxStopLossPercentage")
                     position.stopLossRate = price + (price * maxSL / 100)
@@ -160,6 +161,7 @@ class EtoroHttpClient {
             when {
                 position.takeProfitAmountRate > 0.0 -> position.takeProfitRate = price - (price * position.takeProfitAmountRate / 100) / position.leverage
                 position.takeProfitRate > 0.0 -> position.takeProfitRate = price - (price * position.takeProfitRate / 100)
+                position.takeProfit > 0.0 -> position.takeProfitRate = position.takeProfit
                 else -> {
                     position.takeProfitRate = price - (price * 50 / 100)
                 }
@@ -168,6 +170,7 @@ class EtoroHttpClient {
             when {
                 position.stopLossAmountRate > 0.0 ->  position.stopLossRate = price - (price * position.stopLossAmountRate / 100) / position.leverage
                 position.stopLossRate > 0.0 -> position.stopLossRate = price - (price * position.stopLossRate / 100)
+                position.stopLoss > 0.0 -> position.stopLossRate = position.stopLoss
                 else -> {
                     val maxSL = assetInfo.getInt("MaxStopLossPercentage")
                     position.stopLossRate = price - (price * maxSL / 100)
@@ -176,6 +179,7 @@ class EtoroHttpClient {
             when {
                 position.takeProfitAmountRate > 0.0 -> position.takeProfitRate = price + (price * position.takeProfitAmountRate / 100) / position.leverage
                 position.takeProfitRate > 0.0 -> position.takeProfitRate = price + (price * position.takeProfitRate / 100)
+                position.takeProfit > 0.0 -> position.takeProfitRate = position.takeProfit
                 else -> {
                     position.takeProfitRate = price + (price * 50 / 100)
                 }
