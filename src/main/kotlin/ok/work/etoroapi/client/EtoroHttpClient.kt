@@ -41,7 +41,7 @@ data class ViewContext(val ClientViewRate: Double)
 data class EtoroPosition(val PositionID: String?, val InstrumentID: String, val IsBuy: Boolean, val Leverage: Int,
                          val StopLossRate: Double, val TakeProfitRate: Double, val IsTslEnabled: Boolean,
                          val View_MaxPositionUnits: Int, val View_Units: Double, val View_openByUnits: Boolean?,
-                         val Amount: Int, val ViewRateContext: ViewContext?, val OpenDateTime: String?, val IsDiscounted: Boolean?)
+                         val Amount: Int, val ViewRateContext: ViewContext?, val OpenDateTime: String?, val IsDiscounted: Boolean?, val OpenRate: Double?)
 
 data class AssetInfoRequest(val instrumentIds: Array<String>)
 
@@ -128,7 +128,7 @@ class EtoroHttpClient {
                 }
             }
             val positionRequestBody = EtoroPosition(null, instrumentId, type, position.leverage, position.stopLossRate, position.takeProfitRate, position.tsl, assetInfo.getInt("MaxPositionUnits"),
-                    0.01, false,  position.amount, ViewContext(price), null, assetInfo.getBoolean("AllowDiscountedRates"))
+                    0.01, false,  position.amount, ViewContext(price), null, assetInfo.getBoolean("AllowDiscountedRates"), null)
 
             val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode, metadataService.getMetadata())
                     .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
