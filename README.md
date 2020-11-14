@@ -130,7 +130,8 @@ curl -X POST \
         "view_openByUnits": null,
         "isDiscounted": false,
         "viewRateContext": null,
-        "openDateTime": "2020-02-22T11:28:53.3993309"
+        "openDateTime": "2020-02-22T11:28:53.3993309",
+	"openRate": 10100.1
     }
 }
 ````
