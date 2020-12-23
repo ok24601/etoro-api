@@ -37,8 +37,9 @@ class AuthorizationContext {
         if (token != null) {
             exchangeToken = token
         } else {
-            auth(System.getenv("LOGIN"), System.getenv("PASSWORD"))
-            exchange()
+            exchangeToken = metadataService.getMetadata().token
+//            auth(System.getenv("LOGIN"), System.getenv("PASSWORD"))
+//            exchange()
         }
         getAccountData(TradingMode.REAL)
     }
@@ -52,8 +53,9 @@ class AuthorizationContext {
                 .header("accept", "application/json, text/plain, */*")
                 .header("x-sts-gatewayappid", "90631448-9A01-4860-9FA5-B4EBCDE5EA1D")
                 .header("applicationidentifier", "ReToro")
-                .header("applicationversion", "212.0.7")
+                .header("applicationversion", "288.0.1")
                 .header("sec-fetch-site", "same-origin")
+                .header("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
                 .header("sec-fetch-mode", "cors")
                 .header("referer", "${metadataService.baseUrl}/login")
                 .header("cookie", metadataService.getMetadata().cookies)
