@@ -3,6 +3,7 @@
 
 ##### Requirments:
 - java 11 (JDK11)
+- Google Chrome (tested on version 78)
 - internet connection
 
 ##### Build executable jar
