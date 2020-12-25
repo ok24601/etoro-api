@@ -1,6 +1,6 @@
 package ok.work.etoroapi.client
 
-import ok.work.etoroapi.client.cookies.EtoroMetadata
+import ok.work.etoroapi.client.browser.EtoroMetadata
 import ok.work.etoroapi.model.TradingMode
 import okhttp3.Request
 import java.net.URI

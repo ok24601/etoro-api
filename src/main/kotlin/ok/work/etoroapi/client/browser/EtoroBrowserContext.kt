@@ -1,9 +1,10 @@
-package ok.work.etoroapi.client.cookies
+package ok.work.etoroapi.client.browser
 
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.util.*
 import javax.annotation.PostConstruct
 
 
@@ -14,43 +15,56 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
 
     private lateinit var cookies: String
     private lateinit var token: String
+    private lateinit var expirationTime: Date
+    private lateinit var driver: ChromeDriver
+    private lateinit var opts: ChromeOptions
 
     @PostConstruct
     fun init() {
 
-        var pathToDriver: String
-
-        if (System.getProperty("os.name").startsWith("Mac")) {
-            pathToDriver = "drivers/mac/chromedriver"
-        } else if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            pathToDriver = "drivers/windows/chromedriver.exe"
-        } else {
-            pathToDriver = "drivers/ubuntu/chromedriver"
+        val pathToDriver: String = when {
+            System.getProperty("os.name").startsWith("Mac") -> {
+                "drivers/mac/chromedriver"
+            }
+            System.getProperty("os.name").toLowerCase().contains("windows") -> {
+                "drivers/windows/chromedriver.exe"
+            }
+            else -> {
+                "drivers/ubuntu/chromedriver"
+            }
         }
 
-        val opts = ChromeOptions()
+        opts = ChromeOptions()
         System.setProperty("webdriver.chrome.driver", pathToDriver)
         opts.addArguments("start-maximized")
         opts.addArguments("--disable-blink-features=AutomationControlled")
-        val driver = ChromeDriver(opts)
+        login()
+    }
+
+    fun login() {
+        driver = ChromeDriver(opts)
 
         driver.get("$baseUrl/login")
 
         driver.findElementById("username").sendKeys(System.getenv("LOGIN"))
         driver.findElementById("password").sendKeys(System.getenv("PASSWORD"))
-        driver.findElementByXPath("/html/body/ui-layout/div/div/div[1]/login/login-sts/div/div/div/form/div/div[5]/button").click()
+        driver.findElementByCssSelector(".w-login-btn-wrapp button").click()
         Thread.sleep(2000)
         token = driver.executeScript("return JSON.parse(atob(window.localStorage.loginData)).stsData_app_1.accessToken;") as String
-
+        expirationTime = Date(driver.executeScript("return JSON.parse(atob(window.localStorage.loginData)).stsData_app_1.expirationUnixTimeMs;") as Long)
+        println(token)
+        println("expires at: $expirationTime")
         val cookiesSet = driver.manage().cookies
-        cookies = cookiesSet.toList().map { cookie -> "${cookie.name}=${cookie.value}" }.joinToString("; ")
+        cookies = cookiesSet.toList().joinToString("; ") { cookie -> "${cookie.name}=${cookie.value}" }
         println("cookies: $cookies")
-
 
         driver.quit()
     }
 
     fun getMetadata(): EtoroMetadata {
+        if (Date().after(expirationTime)) {
+            login()
+        }
         return EtoroMetadata(
                 cookies,
                 token,

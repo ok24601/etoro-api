@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import ok.work.etoroapi.client.cookies.EtoroMetadataService
+import ok.work.etoroapi.client.browser.EtoroMetadataService
 import ok.work.etoroapi.model.Position
 import ok.work.etoroapi.model.PositionType
 import ok.work.etoroapi.model.TradingMode
@@ -14,25 +14,14 @@ import ok.work.etoroapi.watchlist.EtoroAsset
 import ok.work.etoroapi.watchlist.Watchlist
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import org.springframework.web.client.RestTemplate
-import java.io.IOException
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json
-import org.seleniumhq.jetty7.util.ajax.JSON
-import org.springframework.http.MediaType
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json
-
-
 
 
 data class ViewContext(val ClientViewRate: Double)
@@ -53,7 +42,7 @@ data class AssetInfoResponse(val Instruments: Array<AssetInfo>)
 class EtoroHttpClient {
 
     @Autowired
-    private lateinit var authorizationContext: AuthorizationContext
+    private lateinit var userContext: UserContext
 
     @Autowired
     private lateinit var watchlist: Watchlist
@@ -69,11 +58,10 @@ class EtoroHttpClient {
     var okHttpClient = OkHttpClient()
 
 
-
     fun getPositions(mode: TradingMode): List<EtoroPosition> {
         val req = prepareRequest("api/logininfo/v1.1/logindata?" +
-                "client_request_id=${authorizationContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-                authorizationContext.exchangeToken, mode, metadataService.getMetadata())
+                "client_request_id=${userContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
+                userContext.exchangeToken, mode, metadataService.getMetadata())
                 .GET()
                 .build()
 
@@ -106,7 +94,7 @@ class EtoroHttpClient {
         val type = position.type.equals(PositionType.BUY)
         val instrumentId = position.instrumentId ?: watchlist.getInstrumentIdByName(position.name ?: "")
         val assetInfo = getAssetInfo(instrumentId, mode)
-        val price = watchlist.getPrice(instrumentId, position.type,assetInfo.getBoolean("AllowDiscountedRates"))
+        val price = watchlist.getPrice(instrumentId, position.type, assetInfo.getBoolean("AllowDiscountedRates"))
         val leverages = assetInfo.getJSONArray("Leverages")
         val minPositionAmount = assetInfo.getInt("MinPositionAmount")
         val minPositionAmountAbsolute = assetInfo.getInt("MinPositionAmountAbsolute")
@@ -128,9 +116,9 @@ class EtoroHttpClient {
                 }
             }
             val positionRequestBody = EtoroPosition(null, instrumentId, type, position.leverage, position.stopLossRate, position.takeProfitRate, position.tsl, assetInfo.getInt("MaxPositionUnits"),
-                    0.01, false,  position.amount, ViewContext(price), null, assetInfo.getBoolean("AllowDiscountedRates"), null)
+                    0.01, false, position.amount, ViewContext(price), null, assetInfo.getBoolean("AllowDiscountedRates"), null)
 
-            val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${authorizationContext.requestId}", authorizationContext.exchangeToken, mode, metadataService.getMetadata())
+            val req = prepareRequest("sapi/trade-${mode.name.toLowerCase()}/positions?client_request_id=${userContext.requestId}", userContext.exchangeToken, mode, metadataService.getMetadata())
                     .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
                     .build()
 
@@ -143,8 +131,8 @@ class EtoroHttpClient {
 
 
     fun deletePosition(id: String, mode: TradingMode) {
-        val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",  authorizationContext.exchangeToken, mode, metadataService.getMetadata())
-        req.delete( RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), "{}"))
+        val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${userContext.requestId}", userContext.exchangeToken, mode, metadataService.getMetadata())
+        req.delete("{}".toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
 
         val code = okHttpClient.newCall(req.build()).execute().code
 
@@ -155,8 +143,8 @@ class EtoroHttpClient {
 
     fun getAssetInfo(id: String, mode: TradingMode): JSONObject {
         val body = AssetInfoRequest(arrayOf(id))
-        val req = prepareRequest("sapi/trade-real/instruments/private/index?client_request_id=${authorizationContext.requestId}",
-                authorizationContext.exchangeToken, mode, metadataService.getMetadata())
+        val req = prepareRequest("sapi/trade-real/instruments/private/index?client_request_id=${userContext.requestId}",
+                userContext.exchangeToken, mode, metadataService.getMetadata())
                 .POST(HttpRequest.BodyPublishers.ofString(JSONObject(body).toString()))
                 .build()
 
