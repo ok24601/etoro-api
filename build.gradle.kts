@@ -24,6 +24,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter")
     compile("org.springframework.boot:spring-boot-starter-web")
 
+    compile("org.springframework.boot:spring-boot-starter-websocket")
+
     compile("org.json:json:20180813")
 
     compile("org.jetbrains.kotlin:kotlin-reflect")

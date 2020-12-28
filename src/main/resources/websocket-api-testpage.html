@@ -1,0 +1,77 @@
+<html>
+<head>
+    <title>Chat WebSocket</title>
+
+    <script src="resources/js/sockjs-0.3.4.js"></script>
+    <script src="resources/js/stomp.js"></script>
+
+    <script type="text/javascript">
+
+        var stompClient = null;
+        const columns = ["InstrumentID", "Ask", "Bid", "IsMarketOpen",
+            "ConversionRateBid", "ConversionRateAsk",
+            "AllowBuy", "AllowSell",
+            "LastExecution",
+            "OfficialClosingPrice", "PriceRateID", "UnitMarginAsk", "UnitMarginBid",
+            "MaxPositionUnits", "IsInstrumentActive", "AskDiscounted", "BidDiscounted","UnitMarginAskDiscounted", "UnitMarginBidDiscounted"]
+
+        function connect() {
+
+            var socket = new SockJS('http://localhost:8088/etoro-api/ws');
+            stompClient = Stomp.over(socket);
+            renderHeader()
+            stompClient.connect({}, function (frame) {
+
+                stompClient.subscribe('/topic/messages', function (messageOutput) {
+                    console.log(messageOutput)
+                    const data = JSON.parse(messageOutput.body)
+                    const id = data["InstrumentID"]
+                    let instrumentRow = document.getElementById(id)
+                    if (!instrumentRow) {
+                        const table = document.getElementById("table")
+                        const newRow = table.insertRow(1)
+                        newRow.id = id
+                        instrumentRow = newRow
+                        for (key in columns) {
+                            instrumentRow.insertCell()
+                        }
+                    }
+
+                    for (var i = 0; i < instrumentRow.cells.length; i++) {
+                        instrumentRow.cells[i].textContent = data[columns[i]]
+                    }
+                });
+            });
+        }
+
+        function disconnect() {
+
+            if (stompClient != null) {
+                stompClient.disconnect();
+            }
+
+            console.log("Disconnected");
+        }
+
+        function renderHeader() {
+            const table = document.getElementById("table")
+            const headerRow = table.insertRow(0)
+            for (var i = 0; i < columns.length; i++) {
+                headerRow.insertCell().textContent = columns[i];
+            }
+        }
+
+    </script>
+
+</head>
+
+<body onload="connect()">
+
+<div>
+    <h3>Etoro WS API test page</h3>
+    <table id="table">
+    </table>
+</div>
+
+</body>
+</html>
