@@ -37,7 +37,7 @@ class EtoroPriceListener : EtoroListener() {
                 log.append("${itemUpdate.getValue(i)} | ")
             }
             println(log.toString())
-            simpMessagingTemplate.convertAndSend("/topic/messages", update)
+            simpMessagingTemplate.convertAndSend("/api/price", update)
         }
     }
 }

@@ -6,12 +6,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <style>
         table, th, td  {
-            width: 100%;
             border: solid black 1px;
+            border-collapse: collapse;
         }
         th, td {
             padding: 10px;
         }
+
     </style>
     <script type="text/javascript">
 
@@ -30,7 +31,7 @@
             renderHeader()
             stompClient.connect({}, function (frame) {
 
-                stompClient.subscribe('/topic/messages', function (messageOutput) {
+                stompClient.subscribe('/api/price', function (messageOutput) {
                     console.log(messageOutput)
                     const data = JSON.parse(messageOutput.body)
                     const id = data["InstrumentID"]
@@ -48,6 +49,11 @@
                     for (var i = 0; i < instrumentRow.cells.length; i++) {
                         instrumentRow.cells[i].textContent = data[columns[i]]
                     }
+                });
+                stompClient.subscribe('/api/positions', function (messageOutput) {
+                    const data = messageOutput.body
+                    const table = document.getElementById("positions")
+                    table.insertRow(0).insertCell().textContent = data
                 });
             });
         }
@@ -77,8 +83,10 @@
 
 <div>
     <h3>Etoro WS API test page</h3>
-    <table id="table">
-    </table>
+    <h4>Whatchlist:</h4>
+    <table id="table"></table>
+    <h4>Recent positions:</h4>
+    <table id="positions" ></table>
 </div>
 
 </body>
