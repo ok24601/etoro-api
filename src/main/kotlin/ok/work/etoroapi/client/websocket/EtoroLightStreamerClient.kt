@@ -2,8 +2,8 @@ package ok.work.etoroapi.client.websocket
 
 import com.lightstreamer.client.LightstreamerClient
 import com.lightstreamer.client.Subscription
-import ok.work.etoroapi.client.AuthorizationContext
-import ok.work.etoroapi.client.cookies.EtoroMetadataService
+import ok.work.etoroapi.client.UserContext
+import ok.work.etoroapi.client.browser.EtoroMetadataService
 import ok.work.etoroapi.client.websocket.listeners.EtoroPositionListener
 import ok.work.etoroapi.client.websocket.listeners.EtoroPriceListener
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +31,7 @@ class EtoroLightStreamerClient {
     lateinit var positionListener: EtoroPositionListener
 
     @Autowired
-    lateinit var authorizationContext: AuthorizationContext
+    lateinit var userContext: UserContext
 
     @Autowired
     private lateinit var credentialsService: EtoroMetadataService
@@ -39,23 +39,23 @@ class EtoroLightStreamerClient {
     @PostConstruct
     fun init() {
         client = LightstreamerClient("https://push-demo-lightstreamer.cloud.etoro.com", "PROXY_PUSH")
-        client.connectionDetails.user = authorizationContext.exchangeToken
+        client.connectionDetails.user = userContext.exchangeToken
         client.connectionDetails.setPassword(credentialsService.getMetadata().lsPassword)
         client.connectionOptions.connectTimeout = "10000"
         client.connect()
 
         realClient = LightstreamerClient("https://push-lightstreamer.cloud.etoro.com", "PROXY_PUSH")
-        realClient.connectionDetails.user = authorizationContext.exchangeToken
+        realClient.connectionDetails.user = userContext.exchangeToken
         realClient.connectionDetails.setPassword(credentialsService.getMetadata().lsPassword)
         realClient.connectionOptions.connectTimeout = "10000"
         realClient.connect()
 
-        val positionsSubDemo = Subscription("DISTINCT", arrayOf("@democid:${authorizationContext.demogcid}/"), arrayOf("message"))
+        val positionsSubDemo = Subscription("DISTINCT", arrayOf("@democid:${userContext.demogcid}/"), arrayOf("message"))
         positionsSubDemo.addListener(positionListener)
         positionsSubDemo.requestedSnapshot = "no"
         client.subscribe(positionsSubDemo)
 
-        val positionsSubReal = Subscription("DISTINCT", arrayOf("@realcid:${authorizationContext.realgcid}/"), arrayOf("message"))
+        val positionsSubReal = Subscription("DISTINCT", arrayOf("@realcid:${userContext.realgcid}/"), arrayOf("message"))
         positionsSubReal.addListener(positionListener)
         positionsSubReal.requestedSnapshot = "no"
         realClient.subscribe(positionsSubReal)

@@ -3,6 +3,7 @@
 
 ##### Requirments:
 - java 11 (JDK11)
+- Google Chrome (tested on version 78)
 - internet connection
 
 ##### Build executable jar
@@ -35,20 +36,6 @@ Your watchlist will be persisted locally in the watchlist.json if you start the 
 - API documentation http://localhost:8088/etoro-api/v2/api-docs
 - add assets to watchlist http://localhost:8088/etoro-api/watchlist/
 - open/close positions http://localhost:8088/etoro-api/positions/
-
-
-### Quick start with Docker
-
-```sh
-docker build -t etoro-api .
-docker run -p 8088:8088 -e LOGIN=mkjiau -e PASSWORD=ooooooooo -it --rm --name my-etoro-api etoro-api
-```
-or
-```sh
-# https://hub.docker.com/r/mkjiau/etoro-api
-docker pull mkjiau/etoro-api
-docker run -p 8088:8088 -e LOGIN=mkjiau -e PASSWORD=ooooooooo -it --rm --name my-etoro-api mkjiau/etoro-api
-```
 
 
 ### Examples
@@ -130,7 +117,8 @@ curl -X POST \
         "view_openByUnits": null,
         "isDiscounted": false,
         "viewRateContext": null,
-        "openDateTime": "2020-02-22T11:28:53.3993309"
+        "openDateTime": "2020-02-22T11:28:53.3993309",
+	"openRate": 10100.1
     }
 }
 ````

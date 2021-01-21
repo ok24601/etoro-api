@@ -1,0 +1,93 @@
+<html>
+<head>
+    <title>Chat WebSocket</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        table, th, td  {
+            border: solid black 1px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+        }
+
+    </style>
+    <script type="text/javascript">
+
+        var stompClient = null;
+        const columns = ["InstrumentID", "Ask", "Bid", "IsMarketOpen",
+            "ConversionRateBid", "ConversionRateAsk",
+            "AllowBuy", "AllowSell",
+            "LastExecution",
+            "OfficialClosingPrice", "PriceRateID", "UnitMarginAsk", "UnitMarginBid",
+            "MaxPositionUnits", "IsInstrumentActive", "AskDiscounted", "BidDiscounted", "UnitMarginAskDiscounted", "UnitMarginBidDiscounted"]
+
+        function connect() {
+
+            var socket = new SockJS('http://localhost:8088/etoro-api/ws');
+            stompClient = Stomp.over(socket);
+            renderHeader()
+            stompClient.connect({}, function (frame) {
+
+                stompClient.subscribe('/api/price', function (messageOutput) {
+                    console.log(messageOutput)
+                    const data = JSON.parse(messageOutput.body)
+                    const id = data["InstrumentID"]
+                    let instrumentRow = document.getElementById(id)
+                    if (!instrumentRow) {
+                        const table = document.getElementById("table")
+                        const newRow = table.insertRow(1)
+                        newRow.id = id
+                        instrumentRow = newRow
+                        for (key in columns) {
+                            instrumentRow.insertCell()
+                        }
+                    }
+
+                    for (var i = 0; i < instrumentRow.cells.length; i++) {
+                        instrumentRow.cells[i].textContent = data[columns[i]]
+                    }
+                });
+                stompClient.subscribe('/api/positions', function (messageOutput) {
+                    const data = messageOutput.body
+                    const table = document.getElementById("positions")
+                    table.insertRow(0).insertCell().textContent = data
+                });
+            });
+        }
+
+        function disconnect() {
+
+            if (stompClient != null) {
+                stompClient.disconnect();
+            }
+
+            console.log("Disconnected");
+        }
+
+        function renderHeader() {
+            const table = document.getElementById("table")
+            const headerRow = table.insertRow(0)
+            for (var i = 0; i < columns.length; i++) {
+                headerRow.insertCell().textContent = columns[i];
+            }
+        }
+
+    </script>
+
+</head>
+
+<body onload="connect()">
+
+<div>
+    <h3>Etoro WS API test page</h3>
+    <h4>Whatchlist:</h4>
+    <table id="table"></table>
+    <h4>Recent positions:</h4>
+    <table id="positions" ></table>
+</div>
+
+</body>
+</html>

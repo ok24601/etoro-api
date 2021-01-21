@@ -3,7 +3,6 @@ package ok.work.etoroapi.transactions
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import ok.work.etoroapi.client.EtoroPosition
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -41,7 +40,7 @@ class TransactionPool {
         return transactionsPool[id]
     }
 
-    fun getFromPoolBlocking(id: String): Transaction?  {
+    fun getFromPoolBlocking(id: String): Transaction? {
         val job = GlobalScope.launch {
             repeat(20) {
                 val transaction = transactionsPool[id]
