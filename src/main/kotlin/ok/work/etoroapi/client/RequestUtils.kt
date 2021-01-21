@@ -5,6 +5,7 @@ import ok.work.etoroapi.model.TradingMode
 import okhttp3.Request
 import java.net.URI
 import java.net.http.HttpRequest
+import kotlin.math.round
 
 fun prepareRequest(path: String, auth: String, mode: TradingMode, credentials: EtoroMetadata): HttpRequest.Builder {
     return HttpRequest.newBuilder().uri(URI("${credentials.baseUrl}/${path}"))
@@ -42,4 +43,10 @@ fun prepareOkRequest(path: String, auth: String, mode: TradingMode, credentials:
             .header("authorization", auth)
             .header("referer", "${credentials.baseUrl}/login")
             .header("cookie", credentials.cookies)
+}
+
+fun Double.round(decimals: Int): Double {
+    var multiplier = 1.0
+    repeat(decimals) { multiplier *= 10 }
+    return round(this * multiplier) / multiplier
 }
