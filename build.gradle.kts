@@ -19,7 +19,6 @@ repositories {
     }
 
 }
-
 dependencies {
     compile("org.springframework.boot:spring-boot-starter")
     compile("org.springframework.boot:spring-boot-starter-web")
@@ -51,7 +50,6 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 }
-
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
