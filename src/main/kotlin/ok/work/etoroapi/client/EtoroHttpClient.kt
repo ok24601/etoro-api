@@ -208,27 +208,27 @@ class EtoroHttpClient {
         val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
 
-        val positions: List<EtoroPosition> = mapper.readValue(response)
-        return positions.map {
-            val instrumentId = it.InstrumentID
-            val assetInfo = getAssetInfo(instrumentId, mode)
-            if (watchlist.getById(instrumentId) != null) {
-                if (it.IsBuy) {
-                    val price = watchlist.getPrice(
-                        instrumentId,
-                        PositionType.SELL,
-                        assetInfo.getBoolean("AllowDiscountedRates")
-                    )
-                    it.copy(NetProfit = (price - it.OpenRate!!) * it.Leverage * it.Amount / it.OpenRate)
-                } else {
-                    val price =
-                        watchlist.getPrice(instrumentId, PositionType.BUY, assetInfo.getBoolean("AllowDiscountedRates"))
-                    it.copy(NetProfit = (it.OpenRate!! - price) * it.Leverage * it.Amount / it.OpenRate)
-                }
-            } else {
-                it
-            }
-        }
+        return mapper.readValue(response)
+//        return positions.map {
+//            val instrumentId = it.InstrumentID
+//            val assetInfo = getAssetInfo(instrumentId, mode)
+//            if (watchlist.getById(instrumentId) != null) {
+//                if (it.IsBuy) {
+//                    val price = watchlist.getPrice(
+//                        instrumentId,
+//                        PositionType.SELL,
+//                        assetInfo.getBoolean("AllowDiscountedRates")
+//                    )
+//                    it.copy(NetProfit = (price - it.OpenRate!!) * it.Leverage * it.Amount / it.OpenRate)
+//                } else {
+//                    val price =
+//                        watchlist.getPrice(instrumentId, PositionType.BUY, assetInfo.getBoolean("AllowDiscountedRates"))
+//                    it.copy(NetProfit = (it.OpenRate!! - price) * it.Leverage * it.Amount / it.OpenRate)
+//                }
+//            } else {
+//                it
+//            }
+//        }
     }
 
     fun getHistoryPositions(
