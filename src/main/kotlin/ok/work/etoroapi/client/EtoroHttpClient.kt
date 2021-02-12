@@ -308,6 +308,25 @@ class EtoroHttpClient {
         return JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getJSONArray("Instruments").getJSONObject(0)
     }
 
+	fun prepareRequest(path: String, auth: String, mode: TradingMode, credentials: EtoroMetadata): HttpRequest.Builder {
+        return HttpRequest.newBuilder().uri(URI("${credentials.baseUrl}/${path}"))
+                .header("authority", credentials.domain)
+                .header("accounttype", mode.name)
+                .header("x-sts-appdomain", credentials.baseUrl)
+                .header("content-type", "application/json;charset=UTF-8")
+                .header("accept", "application/json, text/plain, */*")
+                .header("x-sts-gatewayappid", "90631448-9A01-4860-9FA5-B4EBCDE5EA1D")
+                .header("applicationidentifier", "ReToro")
+                .header("applicationversion", "212.0.7")
+                .header("origin", credentials.baseUrl)
+                .header("sec-fetch-site", "same-origin")
+                .header("sec-fetch-mode", "cors")
+                .header("authorization", auth)
+                .header("referer", "${credentials.baseUrl}/login")
+                .header("cookie", credentials.cookies)
+    }
+
+	
     fun getCash(mode: TradingMode): Double {
         val req = prepareRequest("api/logininfo/v1.1/logindata?" +
                 "client_request_id=${userContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
@@ -368,6 +387,23 @@ class EtoroHttpClient {
                 .build()
         val res = client.send(req, HttpResponse.BodyHandlers.ofString()).body()
         val transactionId = JSONObject(res).getString("Token")
+    }
+    fun prepareOkRequest(path: String, auth: String, mode: TradingMode, credentials: EtoroMetadata): Request.Builder {
+        return Request.Builder().url("${credentials.baseUrl}/${path}")
+                .header("authority", credentials.domain)
+                .header("accounttype", mode.name)
+                .header("x-sts-appdomain", credentials.baseUrl)
+                .header("content-type", "application/json;charset=UTF-8")
+                .header("accept", "application/json, text/plain, */*")
+                .header("x-sts-gatewayappid", "90631448-9A01-4860-9FA5-B4EBCDE5EA1D")
+                .header("applicationidentifier", "ReToro")
+                .header("applicationversion", "212.0.7")
+                .header("origin", credentials.baseUrl)
+                .header("sec-fetch-site", "same-origin")
+                .header("sec-fetch-mode", "cors")
+                .header("authorization", auth)
+                .header("referer", "${credentials.baseUrl}/login")
+                .header("cookie", credentials.cookies)
     }
     fun deleteOrder(id: String, mode: TradingMode) {
         val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/orders/$id?PositionID=$id&client_request_id=${userContext.requestId}",

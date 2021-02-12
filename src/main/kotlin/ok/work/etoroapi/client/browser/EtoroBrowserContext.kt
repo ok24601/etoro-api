@@ -18,7 +18,9 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
 	private lateinit var expirationTime: Date
 	private lateinit var driver: ChromeDriver
 	private lateinit var opts: ChromeOptions
-
+	var userName = "";
+	var password ="";
+	
 	@PostConstruct
 	fun init() {
 
@@ -49,9 +51,10 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
 
 		driver.get("$baseUrl/login")
 
-		driver.findElementById("username").sendKeys("schuermann.lars@googlemail.com")
-		driver.findElementById("password").sendKeys("Fiesta1005")
-
+		driver.findElementById("username").sendKeys(userName)
+		driver.findElementById("password").sendKeys(password);
+		
+		
 		driver.findElementByCssSelector(".w-login-btn-wrapp button").click()
 		Thread.sleep(2000)
 		token = driver.executeScript("return JSON.parse(atob(window.localStorage.loginData)).stsData_app_1.accessToken;") as String
