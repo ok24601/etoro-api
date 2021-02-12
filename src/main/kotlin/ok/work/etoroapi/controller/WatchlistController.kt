@@ -38,5 +38,10 @@ class WatchlistController {
     fun removeFromWatchlistById(@RequestParam("id") id: String) {
         watchlist.removeById(id)
     }
-
+    @DeleteMapping
+    fun resetWatchlist() {
+        watchlist.watchlist().forEach {
+            watchlist.removeById(it.id)
+        }
+    }
 }
