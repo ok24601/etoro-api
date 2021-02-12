@@ -19,8 +19,15 @@ data class EtoroAsset(val InstrumentID: String, val SymbolFull: String, val Inst
         return SymbolFull
     }
 }
+data class EtoroFullAsset(val InstrumentID: String, val SymbolFull: String, val InstrumentDisplayName: String, val Images: List<Image>) {
+    override fun toString(): String {
+        return SymbolFull
+    }
+}
 
 data class Asset(val id: String, val name: String, val fullName: String, var buy: Double?, var sell: Double?, var marketOpen: Boolean?, var askDiscounted: Double, var bidDiscounted: Double)
+
+data class Image(val Width: Int, val Height: Int, val Uri: String)
 
 @Component
 class Watchlist {

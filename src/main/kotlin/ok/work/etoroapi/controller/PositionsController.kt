@@ -24,6 +24,11 @@ class PositionsController {
         return httpClient.getPositions(ofString(mode))
     }
 
+    @GetMapping(value = ["/copied"])
+    fun getCopiedPositions(@RequestHeader(defaultValue = "Real") mode: String): List<EtoroPosition> {
+        return httpClient.getCopiedPositions(ofString(mode))
+    }
+
     @GetMapping(value = ["/history"])
     fun getHistoryPositions(@RequestParam(defaultValue = "100") limit: String, @RequestParam(defaultValue = "1") page: String, @RequestParam(defaultValue = "") StartTime: String, @RequestHeader(defaultValue = "Demo") mode: String): List<EtoroPosition> {
         return httpClient.getHistoryPositions(limit, page, StartTime, ofString(mode))
