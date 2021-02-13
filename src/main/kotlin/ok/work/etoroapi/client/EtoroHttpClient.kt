@@ -114,13 +114,11 @@ class EtoroHttpClient {
                 val imageList: ArrayList<Image> = arrayListOf()
                 for (j in 0 until images.length()) {
                     val imageData = images.getJSONObject(j)
-                    try {
-                        val uri = imageData.getString("Uri")
-                        val image = Image(imageData.getInt("Width"), imageData.getInt("Height"), uri)
-                        imageList.add(image)
-                    } catch (e: Exception) {
-                        val b = 0
+                    if (!imageData.has("Uri")) {
+                        continue;
                     }
+                    val image = Image(imageData.getInt("Width"), imageData.getInt("Height"), imageData.getString("Uri"))
+                    imageList.add(image)
                 }
                 var id: String
                 try {
