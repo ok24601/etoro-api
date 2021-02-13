@@ -21,8 +21,6 @@ class EtoroApiApplication
 
 
 fun main(args: Array<String>) {
-//    var client: EtoroHttpClient = EtoroHttpClient()
-//    var copied = client.getCopiedPositions(ofString("Real"))
     runApplication<EtoroApiApplication>(*args)
 }
 

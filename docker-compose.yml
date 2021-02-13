@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8088:8088"
+    environment:
+      LOGIN: ${LOGIN}
+      PASSWORD: ${PASSWORD}

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import ok.work.etoroapi.client.browser.EtoroMetadataService
-import ok.work.etoroapi.model.Position
-import ok.work.etoroapi.model.PositionType
-import ok.work.etoroapi.model.TradingMode
+import ok.work.etoroapi.model.*
 import ok.work.etoroapi.transactions.Transaction
 import ok.work.etoroapi.transactions.TransactionPool
 import ok.work.etoroapi.watchlist.EtoroAsset
@@ -93,6 +91,13 @@ class EtoroHttpClient {
 
     var cachedInstruments: ArrayList<EtoroFullAsset> = arrayListOf()
 
+    var cachedLoginData: JSONObject = JSONObject()
+
+    var cachedAssetInfoMap: MutableMap<String, JSONObject> = mutableMapOf()
+
+    var cachedMirrorInstrumentIds: ArrayList<String> = arrayListOf()
+
+    var cachedMirrors: List<Mirror> = listOf()
 
     fun getInstruments(): List<EtoroFullAsset> {
 
@@ -127,7 +132,8 @@ class EtoroHttpClient {
                     id,
                     item.getString("SymbolFull"),
                     item.getString("InstrumentDisplayName"),
-                    imageList.toList())
+                    imageList.toList()
+                )
                 cachedInstruments.add(asset)
             }
         }
@@ -178,57 +184,100 @@ class EtoroHttpClient {
         }
     }
 
-    fun getCopiedPositions(mode: TradingMode): List<EtoroPosition> {
-        val req = prepareRequest(
-            "api/logininfo/v1.1/logindata?" +
-                    "client_request_id=${userContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-            userContext.exchangeToken, mode, metadataService.getMetadata()
-        )
-            .GET()
-            .build()
+    fun getLoginData(): JSONObject {
+        if (cachedLoginData.isEmpty) {
+            val request = prepareRequest(
+                "api/logininfo/v1.1/logindata?" +
+                        "client_request_id=${userContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
+                userContext.exchangeToken, ofString("Real"), metadataService.getMetadata()
+            )
+                .GET()
+                .build()
+            cachedLoginData = JSONObject(client.send(request, HttpResponse.BodyHandlers.ofString()).body())
+        }
+        return cachedLoginData
+    }
 
-        val mirrorsData = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body())
+    fun getMirrors(): List<Mirror> {
+        if (cachedMirrors.isEmpty()) {
+            val mirrors = getLoginData()
+                .getJSONObject("AggregatedResult")
+                .getJSONObject("ApiResponses")
+                .getJSONObject("MirrorsUserData")
+                .getJSONObject("Content")
+                .getJSONArray("users")
+                .toString()
+            val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
+            cachedMirrors = mapper.readValue(mirrors)
+        }
+        return cachedMirrors
+    }
+
+    fun getMirrorPositions(mirror_id: String): List<EtoroPosition> {
+        val mirrorsData = getLoginData()
             .getJSONObject("AggregatedResult")
             .getJSONObject("ApiResponses")
             .getJSONObject("PrivatePortfolio")
             .getJSONObject("Content")
             .getJSONObject("ClientPortfolio")
             .getJSONArray("Mirrors")
-        val mirroredPositions: JSONArray = JSONArray()
         for (i in 0 until mirrorsData.length()) {
-            val mirror = mirrorsData.getJSONObject(i)
-            val mirrorPositions = mirror.getJSONArray("Positions")
-            for (j in 0 until mirrorPositions.length()) {
-                val position = mirrorPositions.getJSONObject(j)
-                mirroredPositions.put(position)
+            val mirror: JSONObject = mirrorsData.getJSONObject(i)
+            val id = mirror.getInt("ParentCID")
+            if (id == mirror_id.toInt()) {
+                val json = mirror.getJSONArray("Positions").toString()
+                var positions: List<EtoroPosition>
+                val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
+                positions = mapper.readValue(json)
+                return positions.map {
+                    val instrumentId = it.InstrumentID
+                    val assetInfo = getCachedAssetInfo(instrumentId)
+                    if (assetInfo == null) {
+                        it
+                    } else {
+                        if (watchlist.getById(instrumentId) != null) {
+                            if (it.IsBuy) {
+                                val price = watchlist.getPrice(
+                                    instrumentId,
+                                    PositionType.SELL,
+                                    assetInfo.getBoolean("AllowDiscountedRates")
+                                )
+                                it.copy(NetProfit = (price - it.OpenRate!!) * it.Leverage * it.Amount / it.OpenRate)
+                            } else {
+                                val price =
+                                    watchlist.getPrice(
+                                        instrumentId,
+                                        PositionType.BUY,
+                                        assetInfo.getBoolean("AllowDiscountedRates")
+                                    )
+                                it.copy(NetProfit = (it.OpenRate!! - price) * it.Leverage * it.Amount / it.OpenRate)
+                            }
+                        } else {
+                            it
+                        }
+                    }
+                }
             }
         }
-        val response = mirroredPositions.toString()
+        return listOf()
+    }
 
-        val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
-
-        return mapper.readValue(response)
-//        return positions.map {
-//            val instrumentId = it.InstrumentID
-//            val assetInfo = getAssetInfo(instrumentId, mode)
-//            if (watchlist.getById(instrumentId) != null) {
-//                if (it.IsBuy) {
-//                    val price = watchlist.getPrice(
-//                        instrumentId,
-//                        PositionType.SELL,
-//                        assetInfo.getBoolean("AllowDiscountedRates")
-//                    )
-//                    it.copy(NetProfit = (price - it.OpenRate!!) * it.Leverage * it.Amount / it.OpenRate)
-//                } else {
-//                    val price =
-//                        watchlist.getPrice(instrumentId, PositionType.BUY, assetInfo.getBoolean("AllowDiscountedRates"))
-//                    it.copy(NetProfit = (it.OpenRate!! - price) * it.Leverage * it.Amount / it.OpenRate)
-//                }
-//            } else {
-//                it
-//            }
-//        }
+    fun getMirroredInstrumentIds(): ArrayList<String> {
+        if (cachedMirrorInstrumentIds.isEmpty()) {
+            val mirrors = getMirrors()
+            mirrors.forEach {
+                val positions = getMirrorPositions(it.realCID.toString())
+                positions.forEach { it2 ->
+                    if (!cachedMirrorInstrumentIds.contains(it2.InstrumentID)) {
+                        cachedMirrorInstrumentIds.add(it2.InstrumentID)
+                    }
+                }
+            }
+            cachedMirrorInstrumentIds.sort()
+        }
+        return cachedMirrorInstrumentIds
     }
 
     fun getHistoryPositions(
@@ -404,6 +453,40 @@ class EtoroHttpClient {
         }
     }
 
+    fun preloadAssetInfo(ids: ArrayList<String>) {
+        val body = AssetInfoRequest(ids.toTypedArray())
+        val req = prepareRequest(
+            "sapi/trade-real/instruments/private/index?client_request_id=${userContext.requestId}",
+            userContext.exchangeToken, ofString("Real"), metadataService.getMetadata()
+        )
+            .POST(HttpRequest.BodyPublishers.ofString(JSONObject(body).toString()))
+            .build()
+        val instruments =
+            JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getJSONArray("Instruments")
+        for (i in 0 until instruments.length()) {
+            val instrument = instruments.getJSONObject(i)
+            val instrumentId = instrument.getInt("InstrumentID").toString()
+            cachedAssetInfoMap[instrumentId] = instrument
+        }
+    }
+
+    fun getCachedAssetInfo(id: String): JSONObject? {
+        return cachedAssetInfoMap[id]
+    }
+
+    fun watchMirroredAssets(): Int {
+        val mirroredAssets = getMirroredInstrumentIds()
+        preloadAssetInfo(mirroredAssets)
+        // Reset watchlist
+        watchlist.watchlist().forEach {
+            watchlist.removeById(it.id)
+        }
+        for (id in mirroredAssets) {
+            watchlist.addAssetToWatchlistById(id)
+        }
+        return mirroredAssets.size
+    }
+
     fun getAssetInfo(id: String, mode: TradingMode): JSONObject {
         val body = AssetInfoRequest(arrayOf(id))
         val req = prepareRequest(
@@ -412,7 +495,6 @@ class EtoroHttpClient {
         )
             .POST(HttpRequest.BodyPublishers.ofString(JSONObject(body).toString()))
             .build()
-
         return JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getJSONArray("Instruments")
             .getJSONObject(0)
     }
