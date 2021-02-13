@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ok.work"
-version = "morten-custom"
+version = "0.1.3"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
