@@ -477,12 +477,10 @@ class EtoroHttpClient {
     fun watchMirroredAssets(): Int {
         val mirroredAssets = getMirroredInstrumentIds()
         preloadAssetInfo(mirroredAssets)
-        // Reset watchlist
-        watchlist.watchlist().forEach {
-            watchlist.removeById(it.id)
-        }
         for (id in mirroredAssets) {
-            watchlist.addAssetToWatchlistById(id)
+            if (watchlist.getById(id) == null) {
+                watchlist.addAssetToWatchlistById(id)
+            }
         }
         return mirroredAssets.size
     }
