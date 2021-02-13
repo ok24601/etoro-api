@@ -97,7 +97,7 @@ class EtoroHttpClient {
 
     var cachedMirrorInstrumentIds: ArrayList<String> = arrayListOf()
 
-    var cachedMirrors: List<Mirror> = listOf()
+    var cachedMirrors: ArrayList<Mirror> = arrayListOf()
 
     fun getInstruments(): List<EtoroFullAsset> {
 
@@ -119,7 +119,7 @@ class EtoroHttpClient {
                         val image = Image(imageData.getInt("Width"), imageData.getInt("Height"), uri)
                         imageList.add(image)
                     } catch (e: Exception) {
-                        val b = 0
+                        print(e)
                     }
                 }
                 var id: String
@@ -128,7 +128,7 @@ class EtoroHttpClient {
                 } catch (e: Exception) {
                     id = item.getInt("InstrumentID").toString()
                 }
-                val asset: EtoroFullAsset = EtoroFullAsset(
+                val asset = EtoroFullAsset(
                         id,
                         item.getString("SymbolFull"),
                         item.getString("InstrumentDisplayName"),
@@ -184,12 +184,12 @@ class EtoroHttpClient {
         }
     }
 
-    fun getLoginData(): JSONObject {
+    fun getLoginData(mode: String): JSONObject {
         if (cachedLoginData.isEmpty) {
             val request = prepareRequest(
                     "api/logininfo/v1.1/logindata?" +
                             "client_request_id=${userContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-                    userContext.exchangeToken, ofString("Real"), metadataService.getMetadata()
+                    userContext.exchangeToken, ofString(mode), metadataService.getMetadata()
             )
                     .GET()
                     .build()
@@ -198,9 +198,9 @@ class EtoroHttpClient {
         return cachedLoginData
     }
 
-    fun getMirrors(): List<Mirror> {
+    fun getMirrors(mode: String): List<Mirror> {
         if (cachedMirrors.isEmpty()) {
-            val mirrors = getLoginData()
+            val mirrors = getLoginData(mode)
                     .getJSONObject("AggregatedResult")
                     .getJSONObject("ApiResponses")
                     .getJSONObject("MirrorsUserData")
@@ -214,8 +214,8 @@ class EtoroHttpClient {
         return cachedMirrors
     }
 
-    fun getMirrorPositions(mirror_id: String): List<EtoroPosition> {
-        val mirrorsData = getLoginData()
+    fun getMirrorPositions(mirror_id: String, mode: String): List<EtoroPosition> {
+        val mirrorsData = getLoginData(mode)
                 .getJSONObject("AggregatedResult")
                 .getJSONObject("ApiResponses")
                 .getJSONObject("PrivatePortfolio")
@@ -227,7 +227,7 @@ class EtoroHttpClient {
             val id = mirror.getInt("ParentCID")
             if (id == mirror_id.toInt()) {
                 val json = mirror.getJSONArray("Positions").toString()
-                var positions: List<EtoroPosition>
+                val positions: List<EtoroPosition>
                 val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
                 positions = mapper.readValue(json)
@@ -264,11 +264,11 @@ class EtoroHttpClient {
         return listOf()
     }
 
-    fun getMirroredInstrumentIds(): ArrayList<String> {
+    fun getMirroredInstrumentIds(mode: String): ArrayList<String> {
         if (cachedMirrorInstrumentIds.isEmpty()) {
-            val mirrors = getMirrors()
+            val mirrors = getMirrors(mode)
             mirrors.forEach {
-                val positions = getMirrorPositions(it.realCID.toString())
+                val positions = getMirrorPositions(it.realCID.toString(), mode)
                 positions.forEach { it2 ->
                     if (!cachedMirrorInstrumentIds.contains(it2.InstrumentID)) {
                         cachedMirrorInstrumentIds.add(it2.InstrumentID)
@@ -474,8 +474,8 @@ class EtoroHttpClient {
         return cachedAssetInfoMap[id]
     }
 
-    fun watchMirroredAssets(): Int {
-        val mirroredAssets = getMirroredInstrumentIds()
+    fun watchMirroredAssets(mode: String): Int {
+        val mirroredAssets = getMirroredInstrumentIds(mode)
         preloadAssetInfo(mirroredAssets)
         // Reset watchlist
         watchlist.watchlist().forEach {

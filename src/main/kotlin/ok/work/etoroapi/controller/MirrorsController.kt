@@ -2,12 +2,7 @@ package ok.work.etoroapi.controller
 
 import ok.work.etoroapi.client.EtoroHttpClient
 import ok.work.etoroapi.client.EtoroPosition
-import ok.work.etoroapi.client.EtoroPositionForUpdate
 import ok.work.etoroapi.model.Mirror
-import ok.work.etoroapi.model.Position
-import ok.work.etoroapi.model.ofString
-import ok.work.etoroapi.transactions.Transaction
-import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
@@ -20,23 +15,23 @@ class MirrorsController {
     lateinit var httpClient: EtoroHttpClient
 
     @GetMapping
-    fun getMirrors(): List<Mirror> {
-        return httpClient.getMirrors()
+    fun getMirrors(@RequestHeader(defaultValue = "Demo") mode: String): List<Mirror> {
+        return httpClient.getMirrors(mode)
     }
 
     @GetMapping("/positions")
-    fun getMirrorPositions(@RequestParam mirror_id: String): List<EtoroPosition> {
-        return httpClient.getMirrorPositions(mirror_id)
+    fun getMirrorPositions(@RequestParam mirror_id: String, @RequestHeader(defaultValue = "Demo") mode: String): List<EtoroPosition> {
+        return httpClient.getMirrorPositions(mirror_id, mode)
     }
 
     @GetMapping("/instruments")
-    fun getMirrorInstruments(): ArrayList<String> {
-        return httpClient.getMirroredInstrumentIds()
+    fun getMirrorInstruments(@RequestHeader(defaultValue = "Demo") mode: String): ArrayList<String> {
+        return httpClient.getMirroredInstrumentIds(mode)
     }
 
     @GetMapping("/watch")
-    fun watchMirroredAssets(): Int {
-        return httpClient.watchMirroredAssets()
+    fun watchMirroredAssets(@RequestHeader(defaultValue = "Demo") mode: String): Int {
+        return httpClient.watchMirroredAssets(mode)
     }
 }
 
