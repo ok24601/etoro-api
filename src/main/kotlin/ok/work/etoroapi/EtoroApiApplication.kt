@@ -1,6 +1,8 @@
 package ok.work.etoroapi
 
 import com.fasterxml.classmate.TypeResolver
+import ok.work.etoroapi.client.EtoroHttpClient
+import ok.work.etoroapi.model.ofString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
