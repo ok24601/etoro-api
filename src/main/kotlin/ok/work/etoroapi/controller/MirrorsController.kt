@@ -34,7 +34,7 @@ class MirrorsController {
         return httpClient.getMirroredInstrumentIds()
     }
 
-    @GetMapping("/watch")
+    @PutMapping("/watch")
     fun watchMirroredAssets(): Int {
         return httpClient.watchMirroredAssets()
     }
