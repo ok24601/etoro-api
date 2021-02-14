@@ -29,11 +29,6 @@ class MirrorsController {
         return httpClient.getMirrorPositions(mirror_id)
     }
 
-    @GetMapping("/instruments")
-    fun getMirrorInstrumentIds(): List<String> {
-        return httpClient.getMirroredInstrumentIds()
-    }
-
     @PutMapping("/watch")
     fun watchMirroredAssets(): Int {
         return httpClient.watchMirroredAssets()
