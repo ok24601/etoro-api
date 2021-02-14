@@ -1,7 +1,8 @@
 package ok.work.etoroapi.model
 
-import ok.work.etoroapi.client.EtoroPosition
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Mirror(
     val MirrorID: Int,
     val InitialInvestment: Double,
