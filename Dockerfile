@@ -6,4 +6,4 @@ COPY . .
 RUN ./gradlew build
 
 EXPOSE 8088
-CMD xvfb-run -l -a -e /dev/stdout java -jar /artifact/app/build/libs/etoro-api-morten-custom.jar
+CMD xvfb-run -l -a -e /dev/stdout java -jar /artifact/app/build/libs/etoro-api-0.1.3.jar
