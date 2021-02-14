@@ -188,13 +188,28 @@ class EtoroHttpClient {
     }
 
     fun getMirrors(): List<Mirror> {
-        val json = getLoginData()
-            .getJSONObject("AggregatedResult")
+        val loginData = getLoginData()
+        val mirrors = loginData.getJSONObject("AggregatedResult")
+            .getJSONObject("ApiResponses")
+            .getJSONObject("PrivatePortfolio")
+            .getJSONObject("Content")
+            .getJSONObject("ClientPortfolio")
+            .getJSONArray("Mirrors")
+        val userData = loginData.getJSONObject("AggregatedResult")
             .getJSONObject("ApiResponses")
             .getJSONObject("MirrorsUserData")
             .getJSONObject("Content")
             .getJSONArray("users")
-            .toString()
+        for (i in 0 until mirrors.length()) {
+            val mirror = mirrors.getJSONObject(i)
+            val user = userData.find {
+                it is JSONObject && it.getInt("realCID") == mirror.getInt("ParentCID")
+            }
+            if (user is JSONObject) {
+                mirror.put("User", user)
+            }
+        }
+        val json = mirrors.toString()
         val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
         return mapper.readValue(json)
@@ -209,7 +224,7 @@ class EtoroHttpClient {
             .getJSONObject("ClientPortfolio")
             .getJSONArray("Mirrors")
         if (mirror_id != null) {
-            val mirror = mirrorsData.find { it is JSONObject && it.getInt("ParentCID") == mirror_id.toInt() }
+            val mirror = mirrorsData.find { it is JSONObject && it.getInt("MirrorID") == mirror_id.toInt() }
             if (mirror is JSONObject) {
                 val positionsJSON = mirror.getJSONArray("Positions").toString()
                 val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
