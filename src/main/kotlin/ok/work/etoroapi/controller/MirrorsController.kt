@@ -25,12 +25,12 @@ class MirrorsController {
     }
 
     @GetMapping("/positions")
-    fun getMirrorPositions(@RequestParam mirror_id: String): List<EtoroPosition> {
+    fun getMirrorPositions(@RequestParam(required = false) mirror_id: String?): List<EtoroPosition> {
         return httpClient.getMirrorPositions(mirror_id)
     }
 
     @GetMapping("/instruments")
-    fun getMirrorInstruments(): ArrayList<String> {
+    fun getMirrorInstrumentIds(): List<String> {
         return httpClient.getMirroredInstrumentIds()
     }
 
