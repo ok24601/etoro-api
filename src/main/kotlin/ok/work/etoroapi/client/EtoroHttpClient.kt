@@ -195,18 +195,24 @@ class EtoroHttpClient {
             .getJSONObject("Content")
             .getJSONObject("ClientPortfolio")
             .getJSONArray("Mirrors")
-        val userData = loginData.getJSONObject("AggregatedResult")
+        val hasUserData =  loginData.getJSONObject("AggregatedResult")
             .getJSONObject("ApiResponses")
             .getJSONObject("MirrorsUserData")
-            .getJSONObject("Content")
-            .getJSONArray("users")
-        for (i in 0 until mirrors.length()) {
-            val mirror = mirrors.getJSONObject(i)
-            val user = userData.find {
-                it is JSONObject && it.getInt("realCID") == mirror.getInt("ParentCID")
-            }
-            if (user is JSONObject) {
-                mirror.put("User", user)
+            .getInt("StatusCode") == 200
+        if (hasUserData) {
+            var userData = loginData.getJSONObject("AggregatedResult")
+                .getJSONObject("ApiResponses")
+                .getJSONObject("MirrorsUserData")
+                .getJSONObject("Content")
+                .getJSONArray("users")
+            for (i in 0 until mirrors.length()) {
+                val mirror = mirrors.getJSONObject(i)
+                val user = userData.find {
+                    it is JSONObject && it.getInt("realCID") == mirror.getInt("ParentCID")
+                }
+                if (user is JSONObject) {
+                    mirror.put("User", user)
+                }
             }
         }
         val json = mirrors.toString()
