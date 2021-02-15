@@ -1,8 +1,10 @@
 FROM markhobson/maven-chrome:jdk-11
-RUN apt update && apt install -y xvfb/stable google-chrome-stable
+RUN apt update && apt install -y xvfb/stable 
 
 WORKDIR /artifact/app
 COPY . .
+RUN cp /usr/bin/chromedriver /artifact/app/drivers/ubuntu/
+
 RUN ./gradlew build
 
 EXPOSE 8088
