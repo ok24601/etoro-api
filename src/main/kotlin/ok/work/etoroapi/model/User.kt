@@ -9,8 +9,8 @@ data class Avatar(val width: Int, val height: Int, val type: String, val url: St
 data class User(
     val realCID: Int,
     val username: String,
-    val lastName: String,
-    val firstName: String,
-    val aboutMe: String,
-    val avatars: List<Avatar>
+    val lastName: String?,
+    val firstName: String?,
+    val aboutMe: String?,
+    val avatars: List<Avatar>?
 )

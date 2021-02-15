@@ -66,10 +66,6 @@ data class EtoroPositionForUpdate(
 
 data class AssetInfoRequest(val instrumentIds: Array<String>)
 
-data class AssetInfo(val InstrumentID: Int, val AllowDiscountedRates: Boolean)
-
-data class AssetInfoResponse(val Instruments: Array<AssetInfo>)
-
 @Component
 class EtoroHttpClient {
 
@@ -384,18 +380,12 @@ class EtoroHttpClient {
                 .POST(HttpRequest.BodyPublishers.ofString(JSONObject(positionRequestBody).toString()))
                 .build()
         val body = client.send(req, HttpResponse.BodyHandlers.ofString()).body()
-        // println(JSONObject(positionRequestBody).toString())
-        // println(body)
+
         val transactionId = JSONObject(body).getString("Token")
         return transactionPool.getFromPool(transactionId) ?: Transaction(transactionId, null, null, null, null)
-/*        }*/
-/*        throw RuntimeException("Market ${position.instrumentId} is closed.")*/
-
     }
 
     fun updatePosition(positionRequestBody: EtoroPositionForUpdate, mode: TradingMode): Transaction {
-//        val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/positions/$id?PositionID=$id&client_request_id=${authorizationContext.requestId}",  authorizationContext.exchangeToken, mode, metadataService.getMetadata())
-//        req.put( RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), "{}"))
         val id = positionRequestBody.PositionID
         val requestBody = JSONObject(positionRequestBody)
 
