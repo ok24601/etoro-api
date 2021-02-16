@@ -53,7 +53,7 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
         }
         driver.findElementById("username").sendKeys(email)
         driver.findElementById("password").sendKeys(password)
-        driver.findElementByCssSelector(".w-login-btn-wrapp button").click()
+        driver.findElementByClassName("blue-btn").click()
         var seconds = 0
         while (true) {
             try {
