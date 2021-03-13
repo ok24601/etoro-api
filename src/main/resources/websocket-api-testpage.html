@@ -58,13 +58,10 @@
             });
         }
 
-        function disconnect() {
-
-            if (stompClient != null) {
-                stompClient.disconnect();
-            }
-
-            console.log("Disconnected");
+        async function getUserData() {
+            const response = await fetch('http://localhost:8088/etoro-api/user');
+            const loginInfo = await response.json()
+            return loginInfo?.AggregatedResult?.ApiResponses;
         }
 
         function renderHeader() {
@@ -75,6 +72,17 @@
             }
         }
 
+        async function init() {
+            const loginInfo = await getUserData();
+            const userInfo = loginInfo?.CurrentUserData?.Content?.users[0];
+            const portfolioInfo = loginInfo?.PrivatePortfolio?.Content?.ClientPortfolio;
+            const userElement = document.getElementById("username");
+            const creditElement = document.getElementById("credit");
+            userElement.textContent += userInfo.username;
+            creditElement.textContent += portfolioInfo?.Credit + '$';
+        }
+        init();
+
     </script>
 
 </head>
@@ -83,6 +91,9 @@
 
 <div>
     <h3>Etoro WS API test page</h3>
+    <div id="username">Username: </div>
+    <div id="credit">Credit: </div>
+
     <h4>Whatchlist:</h4>
     <table id="table"></table>
     <h4>Recent positions:</h4>

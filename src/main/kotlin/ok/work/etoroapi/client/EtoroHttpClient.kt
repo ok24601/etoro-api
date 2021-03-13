@@ -23,6 +23,7 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import javax.annotation.PostConstruct
 
 
 data class ViewContext(val ClientViewRate: Double)
@@ -87,8 +88,10 @@ class EtoroHttpClient {
 
     var cachedInstruments: ArrayList<EtoroFullAsset> = arrayListOf()
 
-    var cachedAssetInfoMap: MutableMap<String, JSONObject> = mutableMapOf()
-
+    @PostConstruct
+    fun init() {
+        getInstruments()
+    }
 
     fun getInstruments(): List<EtoroFullAsset> {
         val req = HttpRequest.newBuilder()
