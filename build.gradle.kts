@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ok.work"
-version = "0.1.3"
+version = "0.1.4"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -126,8 +126,8 @@ task("writeNewPom") {
                 val dist = asNode().appendNode("distributionManagement")
                 val rep = dist.appendNode("repository")
                 rep.appendNode("id", "github")
-                rep.appendNode("name", "GitHub oleh2208 Apache Maven Packages")
-                rep.appendNode("url", "https://maven.pkg.github.com/oleh2208/etoro-api")
+                rep.appendNode("name", "GitHub ok24601 Apache Maven Packages")
+                rep.appendNode("url", "https://maven.pkg.github.com/ok24601/etoro-api")
             }
         }.writeTo("${project.projectDir}/pom.xml")
 
