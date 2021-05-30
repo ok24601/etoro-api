@@ -34,6 +34,11 @@ class EtoroLightStreamerClient {
     lateinit var userContext: UserContext
 
     @Autowired
+    private lateinit var metadataService: EtoroMetadataService
+
+
+
+    @Autowired
     private lateinit var credentialsService: EtoroMetadataService
 
     @PostConstruct
@@ -50,12 +55,12 @@ class EtoroLightStreamerClient {
         realClient.connectionOptions.connectTimeout = "10000"
         realClient.connect()
 
-        val positionsSubDemo = Subscription("DISTINCT", arrayOf("@democid:${userContext.demogcid}/"), arrayOf("message"))
+        val positionsSubDemo = Subscription("DISTINCT", arrayOf("@democid:${metadataService.getMetadata().demoCid}/"), arrayOf("message"))
         positionsSubDemo.addListener(positionListener)
         positionsSubDemo.requestedSnapshot = "no"
         client.subscribe(positionsSubDemo)
 
-        val positionsSubReal = Subscription("DISTINCT", arrayOf("@realcid:${userContext.realgcid}/"), arrayOf("message"))
+        val positionsSubReal = Subscription("DISTINCT", arrayOf("@realcid:${metadataService.getMetadata().realCid}/"), arrayOf("message"))
         positionsSubReal.addListener(positionListener)
         positionsSubReal.requestedSnapshot = "no"
         realClient.subscribe(positionsSubReal)

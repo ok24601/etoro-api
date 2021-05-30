@@ -9,16 +9,19 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 
-data class EtoroMetadata(val cookies: String, val token: String, val lsPassword: String, val baseUrl: String, val domain: String)
+data class EtoroMetadata(val cookies: String, val token: String, val cToken: String, val lsPassword: String, val baseUrl: String, val domain: String, val realCid: String, val demoCid: String)
 
 @Component
 class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Value("\${etoro.domain}") val domain: String) {
 
     private lateinit var cookies: String
     private lateinit var token: String
+    private lateinit var cToken: String
     private lateinit var expirationTime: Date
     private lateinit var driver: ChromeDriver
     private lateinit var opts: ChromeOptions
+    private lateinit var realCid: String
+    private lateinit var demoCid: String
 
     @PostConstruct
     fun init() {
@@ -58,6 +61,9 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
         while (true) {
             try {
                 token = driver.executeScript("return JSON.parse(atob(window.localStorage.loginData)).stsData_app_1.accessToken;") as String
+                cToken = (driver.executeScript("return window.localStorage.cToken") as String).replace("\"", "")
+                realCid = driver.executeScript("return JSON.parse(atob(window.localStorage.loginData)).authenticationData.realCid;").toString()
+                demoCid = driver.executeScript("return JSON.parse(atob(window.localStorage.loginData)).authenticationData.demoCid;").toString()
                 println("Token retrieved after %d seconds".format(seconds))
                 break
             } catch (e: Exception) {
@@ -74,6 +80,7 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
         val cookiesSet = driver.manage().cookies
         cookies = cookiesSet.toList().joinToString("; ") { cookie -> "${cookie.name}=${cookie.value}" }
         println("cookies: $cookies")
+        println("cToken: $cToken")
 
         driver.quit()
     }
@@ -85,9 +92,12 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
         return EtoroMetadata(
                 cookies,
                 token,
+                cToken,
                 """{"UserAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36","ApplicationVersion":"213.0.2","ApplicationName":"ReToro","AccountType":"Demo","ApplicationIdentifier":"ReToro"}""",
                 baseUrl,
-                domain
+                domain,
+                realCid,
+                demoCid
         )
     }
 }

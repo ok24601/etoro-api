@@ -33,7 +33,7 @@ class UserContext {
         } else {
             exchangeToken = metadataService.getMetadata().token
         }
-        getAccountData(TradingMode.REAL)
+        //getAccountData(TradingMode.REAL)
     }
 
     fun getAccountData(mode: TradingMode) {
