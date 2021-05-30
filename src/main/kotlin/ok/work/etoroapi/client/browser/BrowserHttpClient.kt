@@ -1,6 +1,7 @@
 package ok.work.etoroapi.client.browser
 
 import ok.work.etoroapi.client.UserContext
+import ok.work.etoroapi.client.clientTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -32,7 +33,7 @@ class BrowserHttpClient {
                         "    \"sec-fetch-site\": \"same-origin\",\n" +
                         "    \"x-csrf-token\": \"${metadata.cToken}\",\n" +
                         "    \"x-sts-autologin\": \"true\",\n" +
-                        "    \"x-sts-clienttime\": \"2021-05-30T21:59:03\"\n" +
+                        "    \"x-sts-clienttime\": \"${clientTime()}\"\n" +
                         "  },\n" +
                         "  \"referrer\": \"https://www.etoro.com/watchlists\",\n" +
                         "  \"referrerPolicy\": \"strict-origin-when-cross-origin\",\n" +

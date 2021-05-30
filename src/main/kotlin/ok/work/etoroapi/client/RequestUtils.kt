@@ -62,11 +62,18 @@ fun prepareOkRequest(path: String, auth: String, mode: TradingMode, credentials:
             .header("cookie", credentials.cookies)
             .header("sec-fetch-dest", "empty")
             .header("x-csrf-token", "$credentials.cToken")
-            .header("x-sts-clienttime", "$dt")
+            .header("x-sts-clienttime", clientTime())
 }
 
 fun Double.round(decimals: Int): Double {
     var multiplier = 1.0
     repeat(decimals) { multiplier *= 10 }
     return round(this * multiplier) / multiplier
+}
+
+fun clientTime(): String {
+    val now = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ISO_DATE_TIME
+    val formatted = now.format(formatter)
+    return formatted.split(".")[0]
 }
