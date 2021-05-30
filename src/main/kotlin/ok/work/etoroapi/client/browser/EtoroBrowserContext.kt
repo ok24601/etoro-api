@@ -45,6 +45,10 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
         login()
     }
 
+    fun getDriver(): ChromeDriver {
+        return driver
+    }
+
     fun login() {
         driver = ChromeDriver(opts)
 
@@ -82,7 +86,7 @@ class EtoroMetadataService(@Value("\${etoro.baseUrl}") val baseUrl: String, @Val
         println("cookies: $cookies")
         println("cToken: $cToken")
 
-        driver.quit()
+        //driver.quit()
     }
 
     fun getMetadata(): EtoroMetadata {

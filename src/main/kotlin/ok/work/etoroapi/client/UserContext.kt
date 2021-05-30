@@ -1,5 +1,6 @@
 package ok.work.etoroapi.client
 
+import ok.work.etoroapi.client.browser.BrowserHttpClient
 import ok.work.etoroapi.client.browser.EtoroMetadataService
 import ok.work.etoroapi.model.TradingMode
 import org.json.JSONObject
@@ -24,6 +25,9 @@ class UserContext {
     @Autowired
     private lateinit var metadataService: EtoroMetadataService
 
+    @Autowired
+    private lateinit var browserHttpClient: BrowserHttpClient
+
     @PostConstruct
     fun setupAuthorizationContext() {
         requestId = UUID.randomUUID().toString().toLowerCase()
@@ -33,8 +37,12 @@ class UserContext {
         } else {
             exchangeToken = metadataService.getMetadata().token
         }
+        val accountData = browserHttpClient.fetchAccountData("Demo")
+        println(accountData)
         //getAccountData(TradingMode.REAL)
     }
+
+
 
     fun getAccountData(mode: TradingMode) {
         val req = prepareRequest("api/logindata/v1.1/logindata?" +

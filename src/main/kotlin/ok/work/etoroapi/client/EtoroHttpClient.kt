@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import ok.work.etoroapi.client.browser.BrowserHttpClient
 import ok.work.etoroapi.client.browser.EtoroMetadataService
 import ok.work.etoroapi.model.*
 import ok.work.etoroapi.transactions.Transaction
@@ -81,6 +82,11 @@ class EtoroHttpClient {
 
     @Autowired
     private lateinit var metadataService: EtoroMetadataService
+
+    @Autowired
+    private lateinit var browserHttpClient: BrowserHttpClient
+
+
 
     private val client = HttpClient.newHttpClient()
 
@@ -176,14 +182,8 @@ class EtoroHttpClient {
     }
 
     fun getLoginData(mode: String): JSONObject {
-        val request = prepareRequest(
-            "api/logininfo/v1.1/logindata?" +
-                    "client_request_id=${userContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-            userContext.exchangeToken, ofString(mode), metadataService.getMetadata()
-        )
-            .GET()
-            .build()
-        return JSONObject(client.send(request, HttpResponse.BodyHandlers.ofString()).body())
+        val loginData = browserHttpClient.fetchAccountData(mode)
+        return JSONObject(loginData)
     }
 
     fun getMirrors(mode: String): List<Mirror> {
