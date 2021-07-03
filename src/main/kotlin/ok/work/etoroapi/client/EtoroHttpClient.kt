@@ -138,15 +138,7 @@ class EtoroHttpClient {
     }
 
     fun getPositions(mode: TradingMode): List<EtoroPosition> {
-        val req = prepareRequest(
-                "api/logininfo/v1.1/logindata?" +
-                        "client_request_id=${userContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-                userContext.exchangeToken, mode, metadataService.getMetadata()
-        )
-                .GET()
-                .build()
-
-        val response = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body())
+        val response = JSONObject(browserHttpClient.fetchAccountData(mode.toString()))
                 .getJSONObject("AggregatedResult")
                 .getJSONObject("ApiResponses")
                 .getJSONObject("PrivatePortfolio")
@@ -162,6 +154,7 @@ class EtoroHttpClient {
         return positions.map {
             val instrumentId = it.InstrumentID
             val assetInfo = getAssetInfo(instrumentId, mode)
+            println(assetInfo)
             if (watchlist.getById(instrumentId) != null) {
                 if (it.IsBuy) {
                     val price = watchlist.getPrice(
@@ -268,7 +261,7 @@ class EtoroHttpClient {
                 .GET()
                 .build()
 
-        val response = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body())
+        val response = JSONObject(browserHttpClient.fetchHistory(limit, page, StartTime ,mode.toString()))
                 .getJSONArray("HistoryPositions")
                 .toString()
 
@@ -433,27 +426,12 @@ class EtoroHttpClient {
     }
 
     fun getAssetInfo(id: String, mode: TradingMode): JSONObject {
-        val body = AssetInfoRequest(arrayOf(id))
-        val req = prepareRequest(
-                "sapi/trade-real/instruments/private/index?client_request_id=${userContext.requestId}",
-                userContext.exchangeToken, mode, metadataService.getMetadata()
-        )
-                .POST(HttpRequest.BodyPublishers.ofString(JSONObject(body).toString()))
-                .build()
-        return JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body()).getJSONArray("Instruments")
+        return JSONObject(browserHttpClient.fetchAssetInfo(id, mode.toString())).getJSONArray("PrivateInstruments")
                 .getJSONObject(0)
     }
 
     fun getCash(mode: TradingMode): Double {
-        val req = prepareRequest(
-                "api/logininfo/v1.1/logindata?" +
-                        "client_request_id=${userContext.requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
-                userContext.exchangeToken, mode, metadataService.getMetadata()
-        )
-                .GET()
-                .build()
-
-        return JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body())
+        return JSONObject(browserHttpClient.fetchAccountData(mode.toString()))
                 .getJSONObject("AggregatedResult")
                 .getJSONObject("ApiResponses")
                 .getJSONObject("PrivatePortfolio")
