@@ -23,7 +23,7 @@ class EtoroPriceListener : EtoroListener() {
     }
 
     override fun onItemUpdate(itemUpdate: ItemUpdate) {
-        val id = itemUpdate.itemName.replace("instrument:", "")
+        val id = itemUpdate.itemName!!.replace("instrument:", "")
 
         if (watchlist.getById(id) !== null) {
             watchlist.updatePrice(id, itemUpdate.getValue(2), itemUpdate.getValue(3))
@@ -36,7 +36,7 @@ class EtoroPriceListener : EtoroListener() {
             val log = StringBuilder()
             var update = HashMap<String, String>()
             for (i in 1..subscriptionFields.size) {
-                update.put(subscriptionFields[i-1], itemUpdate.getValue(i))
+                update.put(subscriptionFields[i-1], itemUpdate.getValue(i).toString())
                 log.append("${itemUpdate.getValue(i)} | ")
             }
             println(log.toString())

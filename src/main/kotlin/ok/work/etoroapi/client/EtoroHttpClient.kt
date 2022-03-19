@@ -25,6 +25,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import javax.annotation.PostConstruct
+import kotlin.math.log
 
 
 data class ViewContext(val ClientViewRate: Double)
@@ -116,7 +117,12 @@ class EtoroHttpClient {
                     if (!imageData.has("Uri")) {
                         continue;
                     }
-                    val image = Image(imageData.getInt("Width"), imageData.getInt("Height"), imageData.getString("Uri"))
+                    val image = Image(0,0, "");
+                    try {
+                        val image = Image(imageData.getInt("Width"), imageData.getInt("Height"), imageData.getString("Uri"))
+                    } catch (e: Exception) {
+
+                    }
                     imageList.add(image)
                 }
                 var id: String
