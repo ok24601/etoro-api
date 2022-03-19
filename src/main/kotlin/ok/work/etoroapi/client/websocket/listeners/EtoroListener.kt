@@ -6,6 +6,10 @@ import com.lightstreamer.client.SubscriptionListener
 
 open class EtoroListener : SubscriptionListener {
     
+    override fun onRealMaxFrequency(p0: String?) {
+        println("onRealMaxFrequency")
+    }
+
     override fun onListenEnd(subscription: Subscription) {
         println("onListenEnd")
     }

@@ -32,7 +32,7 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     compile  ("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
-    compile("com.lightstreamer:ls-javase-client:3.1.1")
+    compile("com.lightstreamer:ls-javase-client:4.3.7")
 
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2")
 
